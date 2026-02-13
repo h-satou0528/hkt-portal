@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/7fd0702b-59de-4432-b238-8d3b68a69962/resourceGroups/hkt-portal-rg/providers/Microsoft.Web/sites/hkt-portal-app",
+    "appService.deploySubpath": "."
+}

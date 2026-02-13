@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>お知らせ掲示板</title> 
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+<meta name="description" content="">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勤力</title>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Google Fonts: Noto Sans JP -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+
+
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#fafafa">
+
+
+  <style>
+    /* タイトルを中央に配置 */
+    .header {
+        text-align: center;
+        font-size: 100px;
+        font-weight: bold;
+    }
+
+    /* 時計を右端に配置 */
+    #clock {
+        font-size: 35px;
+        font-weight: bold;
+        color: rgb(217, 255, 0);
+        position: absolute;
+        top: 30px;
+        right: 20px;
+    }
+
+    
+</style>
+
+
+
+
+
+
+</head>
+<body>
+
+
+	<body bgcolor="#F0FFFF" text="文字色">	
+    	<h1>お知らせ・掲示板</h1>
+      
+     
+      <!--<div id="clock">00:00:00</div>
+     
+
+      <script>
+          function updateClock() {
+              const now = new Date();
+              const hours = String(now.getHours()).padStart(2, '0');  // 2桁にする
+              const minutes = String(now.getMinutes()).padStart(2, '0');
+              const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+              document.getElementById("clock").textContent = `${hours}:${minutes}:${seconds}`;
+          }
+  
+          setInterval(updateClock, 1000);  // 1秒ごとに更新
+          updateClock();  // 初回すぐに実行
+      </script> -->
+     
+
+
+
+
+
+
+
+<div class="container">
+  <div class="left-panel">
+    <div class="btn-group">
+      <button id="openModalBtn">新規作成</button>
+      <button id="editPostBtn">記事編集</button> <!-- ← 投稿 → 編集に変更 -->
+      <button id="deleteBtn">削除</button>
+    </div>
+    <div id="postList"></div>
+  </div>
+  <div class="right-panel">
+    <h2 id="detailTitle">左の記事をクリックして内容を表示する。</h2>
+    <p id="detailAuthor"></p>
+    <p id="detailDate"></p>
+    <hr>
+    <p id="detailContent"></p>
+  </div>
+</div>
+
+<!-- モーダル -->
+<div class="modal" id="postModal">
+  <div class="modal-content">
+    <h3>新規お知らせ</h3>
+    <input type="text" id="newTitle" placeholder="タイトル"><br><br>
+    <input type="text" id="newAuthor" placeholder="投稿者"><br><br>
+    <textarea id="newContent" placeholder="本文（10000文字以内）"></textarea><br>
+    <button id="submitPostBtn">投稿</button>
+    <button id="cancelModalBtn">キャンセル</button>
+  </div>
+</div>
+
+<!-- サニタイズ(エスケープ)JS -->
+    <script src="/common/js/utils.js"></script>
+    <script src="js/script.js"></script>
+
+</body>
+</html>

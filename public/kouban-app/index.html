@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>工事番号登録フォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 変更後 -->
+<script src="/js/vendor/jquery-3.6.0.min.js"></script>
+<script src="/js/vendor/jquery-ui.min.js"></script>
+<script src="/js/vendor/purify.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Google Fonts: Noto Sans JP -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+
+  
+</head>
+<body>
+ <!-- <div id="clock">00:00:00</div>   
+
+  <script>
+      function updateClock() {
+          const now = new Date();
+          const hours = String(now.getHours()).padStart(2, '0');  // 2桁にする
+          const minutes = String(now.getMinutes()).padStart(2, '0');
+          const seconds = String(now.getSeconds()).padStart(2, '0');
+
+          document.getElementById("clock").textContent = `${hours}:${minutes}:${seconds}`;
+      }
+
+      setInterval(updateClock, 1000);  // 1秒ごとに更新
+      updateClock();  // 初回すぐに実行
+  </script>-->
+
+
+<h1>工事番号登録フォーム</h1></p>
+<!--<label for="yearSelect">西暦を選択：</label>-->
+<select id="yearSelect">
+   <option value="2025">2025</option>
+  <option value="2026">2026</option>
+</select> 
+
+  <!-- 必要な年を追加 -->
+</select>
+
+<span id="eraLabel"></span>
+
+
+  </div>
+  <div class="container">
+     <div class="serekiBox">
+
+
+    <div class="flex-container">
+      <div class="radio-group">
+             <div class="label-row">
+        <p><strong>内川工事番号</strong></p>
+        <button class="openRegisterBtn">工事番号登録</button>
+        <button class="showBandaiListBtn">選択した番台リストを表示する</button>
+        <button class="openBranchModalBtn">枝番号登録</button>
+
+
+      </div>
+        <label><input type="radio" name="bandai" value="2001-2049"> 2001番台〜　艦艇(テラテック)　　<font color=red>旧701～(代理)</font></label>
+        <label><input type="radio" name="bandai" value="2051-2099"> 2051番台〜　テラテック関係　　　<font color=red>旧901(支援)</font></label>
+        <label><input type="radio" name="bandai" value="2101-2199"> 2101番台〜　日立製作所関係　　　<font color=red>旧751～</font></label>
+        <label><input type="radio" name="bandai" value="2201-2249"> 2201番台〜　造船関係　　　　　　<font color=red>旧801～(計器)</font></label>
+        <label><input type="radio" name="bandai" value="2251-2299"> 2251番台〜　新潟造船応援工事　　<font color=red>旧851～(応援工事)</font></label>
+        <label><input type="radio" name="bandai" value="2301-2499"> 2301番台〜　三波工業、他　　　　<font color=red>旧1001～(ANT、組配)</font></label>
+        <label><input type="radio" name="bandai" value="2501-2549"> 2501番台〜　艦艇(横監、他)　　　<font color=red>旧1201～(ANT直受け)</font></label>
+        <label><input type="radio" name="bandai" value="2551-2599"> 2551番台〜　工業団地一般　　　　<font color=red>旧1501～</font></label>
+        <label><input type="radio" name="bandai" value="2601-2799"> 2601番台〜　SHI ME他Co2関係　　<font color=red>旧1700～</font></label>
+        <label><input type="radio" name="bandai" value="2801-2899"> 2801番台〜　造船関係一般　　　　<font color=red>旧5000～(電装、結線等)</font></label>
+        <label><input type="radio" name="bandai" value="2901-2999"> 2901番台〜　SHI ME他造船関係　　<font color=red>旧7000～</font></label>
+      </div>
+
+     <div class="radio-group">
+        <div class="label-row">
+          <p><strong>函館工事</strong></p>
+          <button class="openRegisterBtn">工事番号登録</button>
+          <button class="showBandaiListBtn">選択した番台リストを表示する</button>
+          <button class="openBranchModalBtn">枝番号登録</button>
+        </div>
+        
+        <label><input type="radio" name="bandai" value="3001-3049"> 3001番台〜　函館どつく　　　　　<font color=red>旧3000～</font></label>
+        <label><input type="radio" name="bandai" value="3051-3099"> 3051番台〜　函館どつく(外注)　　<font color=red>旧3000～</font></label>
+        <label><input type="radio" name="bandai" value="3101-3199"> 3101番台〜　メーカー支援　　　　<font color=red>旧3000～</font></label>
+        <label><input type="radio" name="bandai" value="3201-3249"> 3201番台〜　その他　　　　　　　<font color=red>旧3000～</font></label>
+      </div>
+
+<!-- 登録モーダル5/1テスト -->
+<div id="registerModal" class="modal">
+  <div class="modal-content" style="padding: 1em; border: 1px solid #ccc; background: #fff;">
+    <!-- <span class="close" onclick="closeRegisterModal()">&times;</span> -->
+
+    <div class="inputBox">
+      <p><strong>工事件名を入力</strong></p>
+      <input type="text" id="title" placeholder="件名"><br>
+
+      <p><strong>担当者を入力</strong></p>
+      <input type="text" id="person" placeholder="担当者"><br>
+
+      <p><strong>摘要（工期など）を入力</strong></p>
+      <textarea id="note" placeholder="摘要" rows="4"></textarea><br>
+
+      <p id="saveMessage" style="color: green; display: none;">保存しました。</p>
+
+      <div class="button-row">
+      <button class="saveEntryBtn">保存</button>
+      <button class="outModalBtn">閉じる</button>
+      <button class="loadEntriesBtn" hidden>読み込み</button>
+      </div>
+
+      <p id="message"></p>
+    </div>
+  </div>
+</div>
+
+<!-- 枝番号登録モーダル　5/2追加 -->
+<div id="branchModal" class="modal" style="display: none;">
+  <div class="modal-content" style="padding: 1em; border: 1px solid #ccc; background: #fff;">
+    <h3>枝番号登録</h3>
+
+    <div>
+      <p><strong>元工事番号を入力</strong></p>
+      <label><input type="text" id="baseBandaiInput" class="modal-input" placeholder="例: 07-2003"></label>
+    </div>
+    <div>
+      <p><strong>工事件名を入力</strong></p>
+      <label><input type="text" id="branchTitle" class="modal-input"></label>
+    </div>
+    <div>
+      <p><strong>担当者を入力</strong></p>
+      <label><input type="text" id="branchPerson" class="modal-input"></label>
+    </div>
+    <div>
+      <p><strong>摘要（工期など）を入力</strong></p>
+      <label><input type="text" id="branchNote" class="modal-input"></label>
+    </div>
+    <!---
+    削除厳禁(他のオブジェクトで使用)
+    <button class="saveBranchEntry()">保存</button>
+    <button class="closeBranchModal()">閉じる</button>
+    削除厳禁
+    -->
+    <button class="branch-save-btn">保存</button>
+    <button class="branch-close-btn">閉じる</button>
+  </div>
+</div>
+
+
+
+
+
+
+      <!-- <div class="inputBox">
+        <p>工作件名を入力</p>
+          <input type="text" id="title" placeholder="件名"><br>
+        <p>担当者を入力</p>
+          <input type="text" id="person" placeholder="担当者"><br>
+        <p>摘要(後期など)を入力</p>
+          <textarea id="note" placeholder="摘要" rows="4"></textarea><br>
+
+        <p id="saveMessage" style="color: green; display: none;">保存しました。</p>
+        <div id="saveMessage" style="display:none; color: green;">保存しました！</div>
+
+
+
+
+
+          <button onclick="saveEntry()">保存</button><br>
+          <button onclick="loadEntries()" hidden>読み込み</button>
+
+         <p id="message"></p>
+      </div> -->
+    </div>
+  </div>
+
+  <div class="statusBox">
+    
+  <div class="status">
+    <p><strong>進捗状況</strong></p>
+
+    <p>工事命令書を選択</p>
+    <select id="order">
+      <option value="">選択してください</option>
+      <option value="〇">〇</option>
+      <option value="△">△</option>
+    </select><br>
+  
+    <p>請求書を選択</p>
+    <select id="invoice">
+      <option value="">選択してください</option>
+      <option value="〇">〇</option>
+      <option value="△">△</option>
+    </select><br>
+  
+    <p>実績表を選択</p>
+    <select id="performance">
+      <option value="">選択してください</option>
+      <option value="〇">〇</option>
+      <option value="△">△</option>
+    </select><br>
+  </div>
+  </div>
+
+
+
+
+
+    <div id="result">
+      <div class="resultBox">
+        <div class="search">
+          <p><strong>工事番号または件名の文字で検索</strong></p>
+          <input type="text" id="searchBandai" placeholder="例: 2051　または 文字"><button onclick="searchEntry()">検　索</button>
+        </div>
+      <h2>登録一覧</h2>
+       <table>
+          <thead>
+            <tr>
+              <th>工事番号</th>
+              <th>工事件名</th>
+              <th>担当者</th>
+              <th>摘　要</th>
+              <th>工事命令書</th>
+              <th>請求書</th>
+              <th>実績表</th>
+            </tr>
+          </thead>
+            <tbody id="entryList"></tbody>
+        </table>
+      </div>
+    </div>
+
+
+
+<!-- 編集モーダル -->
+<div id="editModal">
+  <h3>編　集</h3>
+  <label>工事番号: <input type="text" id="editBandai"></label>
+  <label>件　名: <input type="text" id="editTitle"></label>
+  <label>担当者: <input type="text" id="editPerson"></label>
+  <label>摘　要: <textarea id="editNote" rows="3"></textarea></label>
+  <label>工事命令書:
+    <select id="editOrder">
+      <option value="">選択</option>
+      <option value="〇">〇</option>
+      <option value="△">△</option>
+    </select>
+  </label>
+  <label>請求書:
+    <select id="editInvoice">
+      <option value="">選択</option>
+      <option value="〇">〇</option>
+      <option value="△">△</option>
+    </select>
+  </label>
+  <label>実績表:
+    <select id="editPerformance">
+      <option value="">選択</option>
+      <option value="〇">〇</option>
+      <option value="△">△</option>
+    </select>
+  </label>
+  <button onclick="saveEdit()">保存</button>
+  <button onclick="closeModal()">閉じる</button>
+  <button onclick="markCurrentEditingRowAsMissing()">欠番にする</button>
+</div>
+
+
+
+
+<!-- 選択した番台リストのモーダル 
+<div id="bandaiModal" class="modal2" style="display:none;">
+  <div class="modal2-content">
+    <h3>選択した番台リスト</h3>
+    <ul id="bandaiList"></ul>
+    <button onclick="closeBandaiModal()">閉じる</button>
+  </div>
+</div>-->
+
+
+<div id="bandaiModal" class="modal2">
+  <div class="modal-content2">
+  
+    <h2>選択した工事番台リスト
+
+    <div class="button-closeBandaiModal">
+      <button class="closeBandaiModalBtn">閉じる</button>
+      </div></h2>
+
+    <div id="bandaiModalBody"></div> <!-- これが必要 -->
+    <div class="button-closeBandaiModal">
+    <button class="closeBandaiModalBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<!-- サニタイズ(エスケープ)JS -->
+<script src="/common/js/utils.js"></script>
+
+    <script src="js/script.js"></script>
+
+
+</body>
+</html>

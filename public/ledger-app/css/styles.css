@@ -1,0 +1,441 @@
+/* ページ全体の基本サイズ */
+html, body {
+  font-size: 14px;
+}
+
+/* テーブルの基本 */
+#orderList {
+  font-size: 1rem; /* body の文字サイズに追従 */
+  width: max-content;     /* 内容に合わせて広がる */
+  max-width: 100%;        /* 画面をはみ出しにくい */
+  overflow-x: auto;       /* はみ出したら横スクロール */
+}
+
+/* ==== 以下 画面幅に応じて縮小 ==== */
+
+/* 1600px 以下（フルHD未満） */
+@media (max-width: 1600px) {
+  html, body { font-size: 11px; }
+}
+
+/* 1400px 以下（一般的ノートPC） */
+@media (max-width: 1400px) {
+  html, body { font-size: 10px; }
+}
+
+/* 1200px 以下（小さめデスクトップ） */
+@media (max-width: 1200px) {
+  html, body { font-size: 9px; }
+}
+
+/* 1000px 以下（タブレット横向き） */
+@media (max-width: 1000px) {
+  html, body { font-size: 8px; }
+}
+
+/* 800px 以下（タブレット縦 or 小型ノート） */
+@media (max-width: 800px) {
+  html, body { font-size: 7px; }
+}
+
+
+
+
+
+body {
+  background-color:#F0FFFF;
+}
+
+h1 {
+  color: #e0dde7;
+  text-align:center;
+  padding: 0.5em 0;
+  border-top: solid 3px #364e96;
+  border-bottom: solid 3px #364e96;
+  background-color: #3105f5fa;
+}
+
+
+
+/* モーダル背景 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* モーダル本体 */
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 320px;
+}
+
+/* ← これを一番最後に置く！ */
+.hidden {
+  display: none !important;
+}
+
+/* header 内を横並び + 間隔をつける */
+header {
+  display: flex;
+  align-items: center;
+  gap: 60px;   /* ← これだけで間隔が綺麗に空く */
+  padding: 10px 0;
+}
+
+/* --- モーダル内フォームのグリッド --- */
+/* モーダル内タイトル */
+#orderModal h2 {
+  margin-bottom: 20px;
+  border-bottom: 2px solid #444;
+  padding-bottom: 8px;
+}
+
+/* グリッド全体 */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px 18px; /* 行・列の余白 */
+}
+
+/* 1項目 */
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 備考を横幅いっぱいに */
+.field.full {
+  grid-column: 1 / 5;
+}
+
+/* 横に2分割する項目（数量＋単位などに対応可能） */
+.field.flex2 {
+  grid-column: span 1;
+}
+
+/* M / C など小さめ項目 */
+.small-group label {
+  margin-bottom: 4px;
+}
+
+/* ボタン部分 */
+.modal-buttons {
+  margin-top: 25px;
+  display: flex;
+  gap: 60px;
+}
+
+.modal-buttons button {
+  padding: 4px 12px;  /* 高さを縮める */
+  font-size: 14px;
+}
+
+/* 部門のボックスの幅の広さ指定 */
+#department {
+  width: 150px; /* 好きな幅に変更できます */
+}
+
+/* CD と C_select の横幅を広げる */
+#cd,
+#C_select {
+  width: 175px;   /* 好きな数値に変更可（例：150px, 180px） */
+  padding: 4px;
+  font-size: 10px;
+}
+
+
+/* モーダルの記事欄の大きさ */
+#notes {
+  width: 90%;      /* モーダル内いっぱいに広げる */
+  /* max-width: 600px; /*必要に応じて最大幅を制限 */
+  /*min-height: 60px; /* 高さも調整可能 */
+  /*resize: vertical; /* 高さだけユーザーが調整可能 */
+  /*padding: 5px;     /* 内側余白 */
+  /*box-sizing: border-box; /* 幅にpaddingを含める */
+}
+
+/* CSP（Content Security Policy）での inline style ブロックのためcssに記載を移動 */
+.title {
+  text-align: center;
+  color: #e0dde7;
+  padding: 0.5em 0;
+  border-top: 3px solid #364e96;
+  border-bottom: 3px solid #364e96;
+  background-color: #3105f5fa;
+}
+
+/*.modal-buttons button の高さを縮める*/
+.modal-buttons button {
+  padding: 3px 12px;  /* ← 上下3px・左右12pxに変更（高さが低くなる） */
+  height: auto;       /* ← 明示的に高さ指定を解除（任意） */
+}
+
+
+/* header と main を縦に配置する（デフォルトの block に戻す） */
+header, main {
+  display: block;
+  width: 100%;
+}
+
+/* main 内のテーブルを中央に配置 */
+main {
+  display: flex;
+  justify-content: center; /* 横中央寄せ */
+  margin-top: 20px;
+}
+
+/* テーブル全体のスタイル調整（任意） */
+#orderTable {
+  border-collapse: collapse;
+  width: 100%;
+  /*max-width: 1200px;*/
+  background: white;
+
+  table-layout: auto;      /* 内容に合わせてセル幅を調整 */
+}
+
+/* 共通セル */
+#orderTable th,
+#orderTable td {
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  text-align: left;
+
+  white-space: normal;     /* 自動で折り返し */
+  /* word-break: break-word;  /* 長い文字列も折り返す */
+  /*vertical-align: top;     /* 行が広がった時に上揃え（任意） */
+}
+
+/* ヘッダー */
+#orderTable th {
+  background: #FFEEFF;
+  font-weight: bold;
+}
+
+/* header 内の配置 */
+header {
+  display: flex;
+  align-items: center;
+  gap: 40px;  /* ボタン・ラベル間の間隔を広げる */
+  margin-bottom: 20px; /* header 下の余白 */
+}
+
+/* 検索ボックスの幅を広げる */
+#searchInput {
+  width: 300px;  /* 任意で調整可能 */
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+/* 数字系の列を右寄せ */
+#orderTable td:nth-child(11), /* 数量 */
+#orderTable td:nth-child(13), /* 単価 */
+#orderTable td:nth-child(14), /* 金額(税抜) */
+#orderTable td:nth-child(15), /* 金額(税込) */
+#orderTable td:nth-child(16)  /* 定価(単価) */
+{
+  text-align: right;
+}
+
+
+/*工事番号の小計テーブル表示ボタンとinputbox*/
+.summary-area {
+  margin: 20px 0;
+}
+
+.hidden {
+  display: none;
+}
+
+.summary-modal {
+  width: 90%;
+  max-width: 1200px;
+}
+
+
+ /* 工事番号の小計テーブルモーダル基本 */
+  .modal {
+    position: fixed;
+    z-index: 9999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+  }
+  .modal-content {
+    background: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  /* 表デザイン */
+  #summaryTableContainer table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  #summaryTableContainer th,
+  #summaryTableContainer td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: left;
+  }
+
+  /* 小計行のグレー背景 */
+  .subtotal-row {
+    background: #e6e6e6;
+    font-weight: bold;
+  }
+
+
+  /* 小計テーブルのヘッダー色 */
+.summary-table thead tr {
+  background-color: #4a90e2; /* 青系（好きな色に変更可） */
+  color: white;
+}
+
+.summary-table th, .summary-table td {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+}
+
+.summary-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* モーダルの閉じるボタンの位置調整 */
+#closeSummaryModal {
+  display: block;
+  margin: 15px auto; /* 上に余白＋中央寄せ */
+  padding: 8px 10px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+
+
+
+
+/* ヘッダー全体 */
+header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+}
+
+/* 共通の囲み枠 
+.header-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 12px;
+  border: 2px solid #999;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}*/
+
+/* 小計テーブル用（少し強調） */
+/* 共通 */
+.summary-box {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+  border: 2px solid;
+  border-radius: 6px;
+  padding: 6px 12px;
+  height: 20px; /* ← 高さを指定 */
+}
+
+
+.cd-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid;
+  border-radius: 6px;
+  padding: 6px 12px;
+  height: 20px; /* ← 高さを指定 */
+}
+
+
+
+/* 小計 */
+.summary-box {
+  border-color: #4a90e2;
+  background-color: #eef5ff;
+}
+
+/* CD検索 */
+.cd-search-box {
+  border-color: #67a35b;
+  background-color: #f1f8f1;
+}
+
+/* 小計テーブル表示ボタンを強調 */
+#showSummaryBtn {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 検索ボタンを強調 */
+#searchByCdBtn {
+  background-color: #67a35b;
+  color: white;
+  border: none;
+  padding: 0 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
+/* カーソル通過時の強調 */
+#showSummaryBtn:hover,
+#searchByCdBtn:hover,
+#openFormBtn {
+  opacity: 0.85;
+}
+
+/* 小計の工事番号枠の横幅 */
+#summaryKoujiNumber {
+  width: 100px;
+}
+
+/* 並び替えのボックスのサイズ */
+.header-box,
+.sort-box {
+  height: 44px;
+  box-sizing: border-box;
+}
+
+#sortSelect {
+  height: 28px;
+  min-width: 170px;
+}
+
+/* 税計算結果の入力欄を広げる */
+/* #taxOption {
+  width: 175px;        /* お好みで 280〜400px */
+ /* max-width: 100%;
+}*/
+
+/* #taxResult {
+  width: 280px;        /* お好みで 280〜400px */
+ /* max-width: 100%;
+}*/

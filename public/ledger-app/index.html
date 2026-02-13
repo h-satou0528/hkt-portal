@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<title>工事台帳</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<h1 class="title">工事台帳</h1>
+
+<div class="modal-buttons" style="display:flex;align-items:center;gap:60px;">
+<div class="page-container">
+
+<header>
+<button id="openFormBtn">工事台帳登録フォーム</button>
+
+<label>並び替え：
+<select id="sortSelect">
+<option value="created_desc">登録順(新しい順)</option>
+<option value="created_asc">登録順(古い順)</option>
+<option value="kouji_asc">工事番号昇順</option>
+<option value="kouji_desc">工事番号降順</option>
+</select>
+</label>
+
+<label>検索：
+<input id="searchInput" placeholder="大工番/工事番号/受注先/工事件名で検索">
+</label>
+
+</header>
+
+<main>
+<div id="orderList">
+
+<table id="orderTable">
+<thead>
+<tr>
+<th>大工番</th>
+<th>工事番号</th>
+<th>備考</th>
+<th>北斗三久工番</th>
+<th>受日</th>
+<th>受注先</th>
+<th>工事件名</th>
+<th>船番</th>
+<th>技課</th>
+<th>担当</th>
+<th>完予日</th>
+<th>予定金額</th>
+<th>交通費他</th>
+<th>注文書金額</th>
+<th>決定金額</th>
+<th>完了日</th>
+<th>請求</th>
+<th>入金票金額</th>
+<th>請求金額</th>
+<th>入金合計</th>
+<th>手形振込</th>
+<th>銀行名</th>
+<th>相殺等</th>
+<th>振込金額</th>
+<th>入金日</th>
+<th>手形金額</th>
+<th>手形入金日</th>
+<th>現金</th>
+<th>現金入金日</th>
+<th>小切手</th>
+<th>小切手入金日</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+現在開発中のためご利用できません。
+</div>
+</main>
+</div>
+</div>
+
+<!-- modal -->
+<div id="modal" class="hidden modal-overlay">
+<div class="modal-content">
+
+<h2 class="modal-title">工事台帳登録フォーム</h2>
+
+<form id="orderForm" class="form-grid">
+
+<input type="hidden" id="id">
+
+<label>大工番
+<select name="department" id="department">
+          <option>選択必須</option>
+          <option>000_一般</option>
+          <option>200_京急</option>
+          <option>400_電中研関係</option>
+          <option>450_常石三保造船関係</option>
+          <option>500_JMU関係</option>
+          <option>600_正興電機製作所</option>
+          <option>650_JSW関係</option>
+          <option>700_住友関係</option>
+          <option>900_官庁関係</option>
+          <option>2000_艦テ関係</option>
+          <option>2100_日立製作所関係</option>
+          <option>2200_造船新潟関係</option>
+          <option>2300_三波工業関係</option>
+          <option>2500_艦横工団関係</option>
+          <option>2600_CO2関係</option>
+          <option>2800_造船一般</option>
+          <option>2900_ME他造船関係</option>
+          <option>3001_函館</option>
+          <option>三久電設001_電中研</option>
+          <option>三久電設101_テクノ</option>
+          <option>三久電設201_官庁</option>
+          <option>三久電設501_一般</option>
+          <option>三久電設601_京急</option>
+          <option>三久電設701_北斗</option>
+        </select>
+      </label>
+
+
+<label>工事番号<input id="kouji_number"></label>
+<label>備考<input id="remarks"></label>
+<label>北斗三久工番<input id="hkt39number"></label>
+<label>受日<input id="reciveday"></label>
+<label>受注先<input id="client"></label>
+<label>工事件名<input id="construction"></label>
+<label>船番<input id="shipnumber"></label>
+<label>技課<input id="tec_dep"></label>
+<label>担当<input id="incharge"></label>
+<label>完了日<input id="comp_date1"></label>
+<label>注<input id="note"></label>
+<label>予定金額<input id="p_amount"></label>
+<label>交通費他<input id="transport_ex"></label>
+<label>注文書金額<input id="o_amount"></label>
+<label>決定金額<input id="determ_amount"></label>
+<label>完了日<input id="comp_date2"></label>
+<label>請求<input id="claim"></label>
+<label>発行日<input id="pub_date"></label>
+<label>入金票金額<input id="d_amount"></label>
+<label>請求金額<input id="bill_amount"></label>
+<label>入金合計<input id="deposit_total"></label>
+<label>手形振込<input id="bill_transfer"></label>
+<label>銀行名<input id="bank_name"></label>
+<label>相殺等<input id="offset_amount"></label>
+<label>振込金額<input id="transfer_amount"></label>
+<label>入金日<input id="depo_date1"></label>
+<label>手形金額<input id="bill_amount2"></label>
+<label>手形入金日<input id="depo_date2"></label>
+<label>現金<input id="cash"></label>
+<label>現金入金日<input id="depo_date3"></label>
+<label>小切手<input id="check"></label>
+<label>小切手入金日<input id="depo_date4"></label>
+</form>
+
+<div class="modal-buttons">
+<button id="saveBtn">登録</button>
+<button id="updateBtn" class="hidden">上書き保存</button>
+<button id="deleteBtn" class="hidden">削除</button>
+<button id="closeBtn">閉じる</button>
+</div>
+
+</div>
+</div>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>

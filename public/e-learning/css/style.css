@@ -1,0 +1,27 @@
+
+h1 {
+  color: #e0dde7;/*文字色*/
+  padding: 0.5em 0;/*上下の余白*/
+  border-top: solid 3px #364e96;/*上線*/
+  border-bottom: solid 3px #364e96;/*下線*/
+background-color: #3105f5fa;
+}
+
+h1 {
+  text-align: center
+}
+
+h2 {
+  color: #0940e2;/*文字色*/
+  text-align: center
+  
+}
+
+P {
+  background: #c2eeff;/*背景色*/
+  padding: 0.5em;/*文字まわり（上下左右）の余白*/
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+}

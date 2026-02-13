@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>工事命令書・実績表</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ✅ jQuery & jQuery UI（ローカル版） -->
+  <script src="/js/vendor/jquery-3.6.0.min.js"></script>
+  <script src="/js/vendor/jquery-ui.min.js"></script>
+
+  <!-- ✅ DOMPurify（ローカル版） -->
+  <script src="/js/vendor/purify.min.js"></script>
+  
+    <!-- ✅ jQuery UI テーマ（CDN）-->
+  <!-- ⚠ これもCSPでブロックされる可能性があります。 -->
+  <!-- ブロックされる場合は public/css/vendor/ にダウンロードしてリンクを修正します -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
+  <!-- ✅ アプリ用スタイル -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- ✅ Google Fonts（フォント） -->
+  <!-- Google Fonts: Noto Sans JP -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/css/vendor/jquery-ui.css">
+
+<!-- DOMPurify -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script> -->
+
+<!-- サニタイズ(エスケープ)JS -->
+<script src="/common/js/utils.js"></script>
+
+
+
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+    td, th {
+      border: 1px solid #333;
+      padding: 8px;
+    }
+    input[type="text"] {
+      width: 100%;
+    }
+
+    /* ボタン中央配置 */
+    .center {
+      text-align: left;
+      margin-top: 20px;
+    }
+
+
+  
+
+
+    
+  </style>
+</head>
+<body>
+ 
+
+<h1 style="text-align:center;">工事命令書 ／ 実効予算表・実績表</h1>
+
+<div style="display: flex; align-items:center; gap: 10px;">
+
+
+  <label for="sortSelect">リストの並び替え: </label>
+<select id="sortSelect">
+  <option value="asc"></option>
+  <option value="asc">昇　順</option>
+  <option value="desc">降　順</option>
+</select>
+
+  
+  <button id="openModal">新規工事命令書を発行</button>
+  
+  
+  <!-- 🔍 検索フォーム -->
+  <div style="margin: 15px 0;">
+    <label for="searchInput"><strong> 　工事命令書検索：</strong></label>
+    <input type="text" id="searchInput" placeholder="ここに工事番号や文字を入力します。" style="width: 300px; padding: 5px; font-size: 14px; background-color: #e0f3ff;">
+  </div>
+
+<!-- ✅ モーダルを開くボタン（削除厳禁） -->
+  <button id="openModalBtn">新規実績表を作成</button>
+  <!-- <button onclick="location.reload()">ページをリロード</button>-->
+  <button id="openCostsModalBtn">材料費・工数・外注費を作成</button>
+  <a href="https://ezx-yhokuto.com/index.php/s/sAq7GR7zpkCqwp2" target="_blank" style="display:inline-block; padding:4px 5px; background-color:#4CAF50; color:white; text-decoration:none; border-radius:3px; font-size:13px;">
+  見積書
+</a>
+
+</div>
+
+
+
+
+<!-- モーダル本体（jQuery UI Dialog を使う） -->
+<div id="modalForm" title="工事命令書" style="display:none;">
+  <h3>下記の通り、命令書を発行します。</h3>
+  <h4>記</h4>
+
+  <table border="1">
+    
+  <tr>
+     <td class="label-cell">工事番号</td>
+    <td colspan="3"><input type="text" id="kouji_number" name="kouji_number"></td>
+  </tr>
+
+  <tr>
+     <td class="label-cell">見積番号</td>
+    <td><input type="text" id="mitsumori_number" name="mitsumori_number"></td>
+    <td class="label-cell">担当者</td>
+    <td><input type="text" id="hatchuusha" name="hatchuusha"></td>
+  </tr>
+
+  <tr>
+     <td class="label-cell">発注元</td>
+    <td colspan="3"><input type="text" id="kouji_supplier" name="kouji_supplier" style="width: 100%;"></td>
+  </tr>
+
+  <tr>
+     <td class="label-cell">工事件名</td>
+    <td colspan="3"><input type="text" id="kouji_kenmei" name="kouji_kenmei" style="width: 100%;"></td>
+  </tr>
+
+  <tr>
+     <td class="label-cell">受注日</td>
+    <td><input type="text" class="datepicker" id="order_date" name="order_date"></td>
+    <td class="label-cell">完了予定日</td>
+    <td><input type="text" class="datepicker" id="expected_date" name="expected_date"></td>
+  </tr>
+
+  <tr>
+     <td class="label-cell">完了日</td>
+    <td colspan="3"><input type="text" class="datepicker" id="done_date" name="done_date" style="width: 100%;"></td>
+  </tr>
+
+<tr>
+  <td class="label-cell">見積金額(税抜)</td>
+  <td><input type="text" name="mitsumori_taxex" id="mitsumori_taxex" class="amount-input"></td>
+  <td class="label-cell">見積金額(税込)</td>
+  <td class="right-align"><span id="mitsumori_taxin">0</span>
+        <input type="hidden" name="mitsumori_taxin" id="hidden_mitsumori_taxin" value="0"></td>
+</tr>
+
+<tr>
+  <td class="label-cell">受注金額(税抜)</td>
+  <td><input type="text" name="contract_taxex" id="contract_taxex" class="amount-input"></td>
+  <td class="label-cell">受注金額(税込)</td>
+  <td class="right-align"><span id="contract_taxin">0</span>
+        <input type="hidden" name="contract_taxin" id="hidden_contract_taxin" value="0"></td>
+</tr>
+
+</table>
+
+  <h5 class="ijou">以上</h5>
+
+
+<table class="approval-table">
+  <tr>
+    <th class="label-cell">会長</th>
+    <th class="label-cell">社長</th>
+    <th class="label-cell">取締役</th>
+    <th class="label-cell">総務</th>
+    <th class="label-cell">部長</th>
+    <th class="label-cell">発行者</th>
+  </tr>
+  <tr>
+    <td>
+      <select name="kaichou">
+        <option value=""></option>
+        <option>承認</option>
+      </select>
+    </td>
+    <td>
+      <select name="shachou">
+        <option value=""></option>
+        <option>承認</option>
+      </select>
+    </td>
+    <td>
+      <select name="torishimariyaku">
+        <option value=""></option>
+        <option>承認</option>
+      </select>
+    </td>
+    <td>
+      <select name="soumu">
+        <option value=""></option>
+        <option>承認</option>
+      </select>
+    </td>
+    <td>
+      <select name="buchou">
+        <option value=""></option>
+        <option>承認</option>
+      </select>
+    </td>
+    <td>
+      <select name="hakkousha">
+        <option value=""></option>
+        <option>発行</option>
+      </select>
+    </td>
+  </tr>
+</table>
+<tr>
+  <td>記　事</td>
+  <td><textarea id="article" name="article" rows="1" style="width:96%"></textarea></td>
+</tr>
+</div>
+
+<!-- <h3>登録済み工事命令書一覧</h3>-->
+<div id="orderListWrapper">
+<table id="orderList" border="1">
+  <thead>
+    <!-- 上段のグループ見出し -->
+    <tr>
+      
+      <th colspan="9">工　事　命　令　書</th>
+      <th colspan="7" class="area-header">実 効 予 算 表</th>
+      <th colspan="6" class="area-header2">実　　績　　表</th>
+      <th colspan="1" class="area-header2">実績表</th>
+      
+    </tr>
+    <!-- 下段の項目 -->
+    <tr>
+      <th>工事番号</th>
+      <th>発注元</th> <!-- 追加 -->
+      <th>工事件名</th>
+      <th>会長</th>
+      <th>社長</th>
+      <th>取締</th>
+      <th>総務</th>
+      <th>部長</th>
+      <th>担当</th>
+    <!-- 実績表 13列 -->
+<th class="area-header">工事番号</th>
+<th class="area-header">会長</th>
+<th class="area-header">社長</th>
+<th class="area-header">取締</th>
+<th class="area-header">部長</th>
+<th class="area-header">課長</th>
+<th class="area-header">担当</th>
+<th class="area-header2">会長</th>
+<th class="area-header2">社長</th>
+<th class="area-header2">取締</th>
+<th class="area-header2">部長</th>
+<th class="area-header2">課長</th>
+<th class="area-header2">担当</th>
+<th class="area-header2">材料費</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+</div>
+
+
+
+
+
+<!-- ここから実績表のエリア****************************************************************************** -->
+<!-- ✅ モーダル背景 -->
+<div id="modalOverlay" class="modal-overlay">
+  <!-- ✅ モーダル本体 -->
+  <div class="modal-content" id="perfModal">  <!-- ← ここに id を追加 -->
+
+    <span class="modal-close">×</span>
+
+
+<!-- hiddenでID保持（PUT/POST判定用） -->
+<input type="hidden" name="perf_id">
+
+
+
+<div class="container-flex">
+<!-- ✅ ブロック1：工事情報 -->
+<div class="block bordered">
+  <div class="form-row">
+    <label>工事番号</label>
+  <!-- 工事番号 -->
+    <input type="text" name="kouji_number">
+  </div>
+  <div class="form-row">
+    <label>発注先</label>
+    <input type="text" name="kouji_supplier">
+  </div>
+  <div class="form-row">
+    <label>工事件名</label>
+    <input type="text" name="kouji_kenmei" style="width: 100%;">
+  </div>
+  <div class="form-row term-row">
+    <label>工　　期</label>
+    <div class="term-fields">
+    <input type="date" name="start_date">
+    <span class="range">～</span>
+    <input type="date" name="end_date">
+    </div>
+  </div>
+  <div class="form-row">
+    <label>受注金額(A)</label>
+      <input type="text" name="contract_amount" id="amountA">
+
+  </div>
+  <div class="form-row">
+    <label>予算上限額(Aの85%)</label>
+    <span id="limitAmount">0</span>
+  </div>
+</div>
+
+
+<!-- ✅ ブロック2：実効予算表 -->
+<div class="block1">
+  <h3 class="underline">実効予算表・実績表</h3>
+  <div class="subtext">（工事原価）</div>
+
+  <div class="form-row no-border">
+    <label class="underline">実　効</label>
+    <input type="date" name="effective_date">
+  </div>
+  <div class="form-row no-border">
+    <label class="underline">実　績</label>
+    <input type="date" name="result_date">
+  </div>
+</div>
+
+
+
+<!-- ✅ ブロック3：実効予算表 -->
+<table class="approval-table2">
+  <tr>
+     <th class="label-cell"></td>　　</th> 
+     <th class="label-cell"></td>会　長</th>
+    <th class="label-cell">社　長</th>
+    <th class="label-cell">取締役</th>
+    <th class="label-cell">部　長</th>
+    <th class="label-cell">課　長</th>
+    <th class="label-cell">担　当</th>
+  </tr>
+  <tr>
+    <td>
+      <div class="approval-text">実　効</div>
+      <div class="divider-line"></div>
+      <div class="approval-text">実　績</div>
+  </td>
+
+    <td>
+      <select name="kaichou_up">   <!-- 会長 -->
+        <option value=""></option>
+        <option>承認</option>
+        <option>━━</option>
+      </select>
+
+      <div class="divider-line"></div> 
+        <select name="kaichou_down">
+        <option value=""></option>
+        <option>承認</option>
+      </select>
+    </td>
+    <td>
+      <select name="shachou_up">   <!-- 社長 -->
+        <option value=""></option>
+        <option>承認</option>
+        <option>━━</option>
+      </select>
+      <div class="divider-line"></div>
+       <select name="shachou_down">
+        <option value=""></option>
+        <option>承認</option>
+      </select>
+    </td>
+    <td>
+      <select name="torishimari_up">   <!-- 取締役 -->
+        <option value=""></option>
+        <option>承認</option>
+        <option>━━</option>
+      </select>
+      <div class="divider-line"></div>
+       <select name="torishimari_down">
+        <option value=""></option>
+        <option>承認</option>
+      </select>
+    </td>
+
+    <td> <select name="soumu_up"> <!-- 総務 --> 
+          <option value=""></option>
+          <option>承認</option>
+          <option>━━</option>
+         </select> <div class="divider-line">          
+         </div>
+          <select name="soumu_down">
+          <option value=""></option>
+          <option>承認</option>
+          <!--<option>差戻</option>-->
+         </select>
+   </td>
+
+    <td>
+      <select name="buchou_up">   <!-- 部長 -->
+        <option value=""></option>
+        <option>承認</option>
+        <option>━━</option>
+      </select>
+      <div class="divider-line"></div>
+       <select name="buchou_down">
+        <option value=""></option>
+        <option>承認</option>
+      </select>
+    </td>
+    
+    <td>
+      <select name="hakkousha_up">   <!-- 発行者 -->
+        <option value=""></option>
+        <option>発行</option>
+        <option>━━</option>
+      </select>
+      <div class="divider-line"></div>
+       <select name="hakkousha_down">
+        <option value=""></option>
+        <option>発行</option>
+        <option>差戻</option>
+        <option>完了</option>
+      </select>
+    </td>
+
+<tr><th class="label-cell">記　事</th>
+  <td colspan="14" class="comment-cell" contenteditable="true" id="comments">   
+  </td>
+</tr>
+
+
+  </tr>
+</table>
+</div>
+
+
+
+
+
+ <table id="spreadsheet">
+    <thead>
+        <tr><th colspan="8">実効予算 <!-- A1からH1を結合 --> 
+            <th colspan="6">実　　績 <!-- i1からn1を結合 -->
+        </tr>
+ 
+
+        <tr>
+            <th>項目</th>            <!-- A -->
+            <th>発注先</th>          <!-- B -->
+            <th>材料費</th>          <!-- C -->
+            <th>外注費</th>          <!-- D -->
+            <th>現場経費１</th>       <!-- E -->
+            <th colspan="2">工数 H　(一般)</th> <!-- F1とG1を結合 -->
+            <th>労務費</th>         <!-- H -->
+            <th>材料費</th>          <!-- I -->
+            <th>外注費</th>          <!-- J -->
+            <th>現場経費１</th>       <!-- K -->
+            <th colspan="2">工数 H(一般)</th> <!-- L1とM1を結合 -->
+            <th>労務費</th>         <!-- N -->
+
+            <!-- 必要な分だけ列を追加 -->
+        </tr>
+
+
+    </thead>
+    <tbody>
+        <!-- １行に14列のセル分の設定 -->
+        <tr>
+             <tr>
+             <td id="a1" contenteditable="true"></td>
+             <td id="b1" contenteditable="true"></td>
+             <td id="c1" contenteditable="true"></td>
+             <td id="d1" contenteditable="true"></td>
+             <td id="e1" contenteditable="true"></td>
+             <td id="f1" contenteditable="true">平日(日中)</td>
+             <td id="g1" contenteditable="true"></td>
+             <td id="h1" contenteditable="true"></td>
+             <td id="i1" contenteditable="true"></td>
+             <td id="j1" contenteditable="true"></td>
+             <td id="k1" contenteditable="true"></td>
+             <td id="l1" contenteditable="true">平日(日中)</td>
+             <td id="m1" contenteditable="true"></td>
+             <td id="n1" contenteditable="true"></td>  </tr>
+
+        <tr>      
+             <td id="a2" contenteditable="true"></td>
+             <td id="b2" contenteditable="true"></td>
+             <td id="c2" contenteditable="true"></td>
+             <td id="d2" contenteditable="true"></td>
+             <td id="e2" contenteditable="true"></td>
+             <td id="f2" contenteditable="true">平日(残業)</td>
+             <td id="g2" contenteditable="true"></td>
+             <td id="h2" contenteditable="true"></td>
+             <td id="i2" contenteditable="true"></td>
+             <td id="j2" contenteditable="true"></td>
+             <td id="k2" contenteditable="true"></td>
+             <td id="l2" contenteditable="true">平日(残業)</td>
+             <td id="m2" contenteditable="true"></td>
+             <td id="n2" contenteditable="true"></td>  </tr>
+
+        <tr>     
+             <td id="a3" contenteditable="true"></td>
+             <td id="b3" contenteditable="true"></td>
+             <td id="c3" contenteditable="true"></td>
+             <td id="d3" contenteditable="true"></td>
+             <td id="e3" contenteditable="true"></td>
+             <td id="f3" contenteditable="true">平日(夜間)</td>
+             <td id="g3" contenteditable="true"></td>
+             <td id="h3" contenteditable="true"></td>
+             <td id="i3" contenteditable="true"></td>
+             <td id="j3" contenteditable="true"></td>
+             <td id="k3" contenteditable="true"></td>
+             <td id="l3" contenteditable="true">平日(夜間)</td>
+             <td id="m3" contenteditable="true"></td>
+             <td id="n3" contenteditable="true"></td>  </tr>
+
+         <tr>      
+             <td id="a4" contenteditable="true"></td>
+             <td id="b4" contenteditable="true"></td>
+             <td id="c4" contenteditable="true"></td>
+             <td id="d4" contenteditable="true"></td>
+             <td id="e4" contenteditable="true"></td>
+             <td id="f4" contenteditable="true">休日(日中)</td>
+             <td id="g4" contenteditable="true"></td>
+             <td id="h4" contenteditable="true"></td>
+             <td id="i4" contenteditable="true"></td>
+             <td id="j4" contenteditable="true"></td>
+             <td id="k4" contenteditable="true"></td>
+             <td id="l4" contenteditable="true">休日(日中)</td>
+             <td id="m4" contenteditable="true"></td>
+             <td id="n4" contenteditable="true"></td>  </tr>
+         <tr>
+             <td id="a5" contenteditable="true"></td>
+             <td id="b5" contenteditable="true"></td>
+             <td id="c5" contenteditable="true"></td>
+             <td id="d5" contenteditable="true"></td>
+             <td id="e5" contenteditable="true"></td>
+             <td id="f5" contenteditable="true">休日(残業)</td>
+             <td id="g5" contenteditable="true"></td>
+             <td id="h5" contenteditable="true"></td>
+             <td id="i5" contenteditable="true"></td>
+             <td id="j5" contenteditable="true"></td>
+             <td id="k5" contenteditable="true"></td>
+             <td id="l5" contenteditable="true">休日(残業)</td>
+             <td id="m5" contenteditable="true"></td>
+             <td id="n5" contenteditable="true"></td>  </tr>
+         <tr>
+             <td id="a6" contenteditable="true"></td>
+             <td id="b6" contenteditable="true"></td>
+             <td id="c6" contenteditable="true"></td>
+             <td id="d6" contenteditable="true"></td>
+             <td id="e6" contenteditable="true"></td>
+             <td id="f6" contenteditable="true">休日(夜間)</td>
+             <td id="g6" contenteditable="true"></td>
+             <td id="h6" contenteditable="true"></td>
+             <td id="i6" contenteditable="true"></td>
+             <td id="j6" contenteditable="true"></td>
+             <td id="k6" contenteditable="true"></td>
+             <td id="l6" contenteditable="true">休日(夜間)</td>
+             <td id="m6" contenteditable="true"></td>
+             <td id="n6" contenteditable="true"></td>  </tr>
+         <tr>
+             <td id="a7" contenteditable="true"></td>
+             <td id="b7" contenteditable="true"></td>
+             <td id="c7" contenteditable="true"></td>
+             <td id="d7" contenteditable="true"></td>
+             <td id="e7" contenteditable="true"></td>
+             <td id="f7" contenteditable="true">工数(H)　計</td>
+             <td id="g7" contenteditable="true"></td>
+             <td id="h7" contenteditable="true">━━━━━━</td>
+             <td id="i7" contenteditable="true"></td>
+             <td id="j7" contenteditable="true"></td>
+             <td id="k7" contenteditable="true"></td>
+             <td id="l7" contenteditable="true">工数(H)　計</td>
+             <td id="m7" contenteditable="true"></td>
+             <td id="n7" contenteditable="true">━━━━━━</td>  </tr>
+         <tr>  
+             <td id="a8" contenteditable="true"></td>
+             <td id="b8" contenteditable="true"></td>
+             <td id="c8" contenteditable="true"></td>
+             <td id="d8" contenteditable="true"></td>
+             <td id="e8" contenteditable="true"></td>
+             <td id="f8" contenteditable="true" colspan="2">労務費　計</td>
+             <td id="h8" contenteditable="true"></td>
+             <td id="i8" contenteditable="true"></td>
+             <td id="j8" contenteditable="true"></td>
+             <td id="k8" contenteditable="true"></td>
+             <td id="l8" contenteditable="true" colspan="2">労務費　計</td>
+             <!--- <td id="m8" contenteditable="true"></td> --->
+             <td id="n8" contenteditable="true"></td>  </tr>
+         <tr>  
+             <td id="a9" contenteditable="true"></td>
+             <td id="b9" contenteditable="true"></td>
+             <td id="c9" contenteditable="true"></td>
+             <td id="d9" contenteditable="true"></td>
+             <td id="e9" contenteditable="true"></td>
+             <td id="f9" contenteditable="true" colspan="2">工数H　(管理)</td>
+             <!--- <td id="g9" contenteditable="true"></td> --->
+             <td id="h9" contenteditable="true">代理人及び監督費</td>
+             <td id="i9" contenteditable="true"></td>
+             <td id="j9" contenteditable="true"></td>
+             <td id="k9" contenteditable="true"></td>
+             <td id="l9" contenteditable="true" colspan="2">工数H　(管理)</td>
+             <!--- <td id="m9" contenteditable="true"></td> --->
+             <td id="n9" contenteditable="true">代理人及び監督費</td>  </tr>
+         <tr>   
+             <td id="a10" contenteditable="true"></td>
+             <td id="b10" contenteditable="true"></td>
+             <td id="c10" contenteditable="true"></td>
+             <td id="d10" contenteditable="true"></td>
+             <td id="e10" contenteditable="true"></td>
+             <td id="f10" contenteditable="true">平日(日中)</td>
+             <td id="g10" contenteditable="true"></td>
+             <td id="h10" contenteditable="true"></td>
+             <td id="i10" contenteditable="true"></td>
+             <td id="j10" contenteditable="true"></td>
+             <td id="k10" contenteditable="true"></td>
+             <td id="l10" contenteditable="true">平日(日中)</td>
+             <td id="m10" contenteditable="true"></td>
+             <td id="n10" contenteditable="true"></td>  </tr>
+          <tr>  
+             <td id="a11" contenteditable="true"></td>
+             <td id="b11" contenteditable="true"></td>
+             <td id="c11" contenteditable="true"></td>
+             <td id="d11" contenteditable="true"></td>
+             <td id="e11" contenteditable="true"></td>
+             <td id="f11" contenteditable="true">平日(残業)</td>
+             <td id="g11" contenteditable="true"></td>
+             <td id="h11" contenteditable="true"></td>
+             <td id="i11" contenteditable="true"></td>
+             <td id="j11" contenteditable="true"></td>
+             <td id="k11" contenteditable="true"></td>
+             <td id="l11" contenteditable="true">平日(残業)</td>
+             <td id="m11" contenteditable="true"></td>
+             <td id="n11" contenteditable="true"></td>  </tr>
+         <tr>   
+             <td id="a12" contenteditable="true"></td>
+             <td id="b12" contenteditable="true"></td>
+             <td id="c12" contenteditable="true"></td>
+             <td id="d12" contenteditable="true"></td>
+             <td id="e12" contenteditable="true"></td>
+             <td id="f12" contenteditable="true">平日(夜間)</td>
+             <td id="g12" contenteditable="true"></td>
+             <td id="h12" contenteditable="true"></td>
+             <td id="i12" contenteditable="true"></td>
+             <td id="j12" contenteditable="true"></td>
+             <td id="k12" contenteditable="true"></td>
+             <td id="l12" contenteditable="true">平日(夜間)</td>
+             <td id="m12" contenteditable="true"></td>
+             <td id="n12" contenteditable="true"></td>  </tr>
+         <tr>  
+             <td id="a13" contenteditable="true"></td>
+             <td id="b13" contenteditable="true"></td>
+             <td id="c13" contenteditable="true"></td>
+             <td id="d13" contenteditable="true"></td>
+             <td id="e13" contenteditable="true"></td>
+             <td id="f13" contenteditable="true">休日(日中)</td>
+             <td id="g13" contenteditable="true"></td>
+             <td id="h13" contenteditable="true"></td>
+             <td id="i13" contenteditable="true"></td>
+             <td id="j13" contenteditable="true"></td>
+             <td id="k13" contenteditable="true"></td>
+             <td id="l13" contenteditable="true">休日(日中)</td>
+             <td id="m13" contenteditable="true"></td>
+             <td id="n13" contenteditable="true"></td>  </tr>
+         <tr> 
+             <td id="a14" contenteditable="true"></td>
+             <td id="b14" contenteditable="true"></td>
+             <td id="c14" contenteditable="true"></td>
+             <td id="d14" contenteditable="true"></td>
+             <td id="e14" contenteditable="true"></td>
+             <td id="f14" contenteditable="true">休日(残業)</td>
+             <td id="g14" contenteditable="true"></td>
+             <td id="h14" contenteditable="true"></td>
+             <td id="i14" contenteditable="true"></td>
+             <td id="j14" contenteditable="true"></td>
+             <td id="k14" contenteditable="true"></td>
+             <td id="l14" contenteditable="true">休日(残業)</td>
+             <td id="m14" contenteditable="true"></td>
+             <td id="n14" contenteditable="true"></td>  </tr>
+         <tr>
+             <td id="a15" contenteditable="true"></td>
+             <td id="b15" contenteditable="true"></td>
+             <td id="c15" contenteditable="true"></td>
+             <td id="d15" contenteditable="true"></td>
+             <td id="e15" contenteditable="true"></td>
+             <td id="f15" contenteditable="true">休日(夜間)</td>
+             <td id="g15" contenteditable="true"></td>
+             <td id="h15" contenteditable="true"></td>
+             <td id="i15" contenteditable="true"></td>
+             <td id="j15" contenteditable="true"></td>
+             <td id="k15" contenteditable="true"></td>
+             <td id="l15" contenteditable="true">休日(夜間)</td>
+             <td id="m15" contenteditable="true"></td>
+             <td id="n15" contenteditable="true"></td>  </tr>
+         <tr>
+             <td id="a16" contenteditable="true"></td>
+             <td id="b16" contenteditable="true"></td>
+             <td id="c16" contenteditable="true"></td>
+             <td id="d16" contenteditable="true"></td>
+             <td id="e16" contenteditable="true"></td>
+             <td id="f16" contenteditable="true">工数(H)　計</td>
+             <td id="g16" contenteditable="true"></td>
+             <td id="h16" contenteditable="true">━━━━━━</td>
+             <td id="i16" contenteditable="true"></td>
+             <td id="j16" contenteditable="true"></td>
+             <td id="k16" contenteditable="true"></td>
+             <td id="l16" contenteditable="true">工数(H)　計</td>
+             <td id="m16" contenteditable="true"></td>
+             <td id="n16" contenteditable="true">━━━━━━</td>  </tr>
+         <tr>
+             <td id="a17" contenteditable="true"></td>
+             <td id="b17" contenteditable="true"></td>
+             <td id="c17" contenteditable="true"></td>
+             <td id="d17" contenteditable="true"></td>
+             <td id="e17" contenteditable="true"></td>
+             <td id="f17" contenteditable="true" colspan="2">現場経費2　計</td>
+             <!--- <td id="g17" contenteditable="true"></td> --->
+             <td id="h17" contenteditable="true"></td>
+             <td id="i17" contenteditable="true"></td>
+             <td id="j17" contenteditable="true"></td>
+             <td id="k17" contenteditable="true"></td>
+             <td id="l17" contenteditable="true" colspan="2">現場経費2　計</td>
+             <!--- <td id="m17" contenteditable="true"></td> --->
+             <td id="n17" contenteditable="true"></td>  </tr>
+         <tr>
+             <td id="a18" contenteditable="true">小　　計</td>
+             <td id="b18" contenteditable="true">━━━━━</td>
+             <td id="c18" contenteditable="true"></td>
+             <td id="d18" contenteditable="true"></td>
+             <td id="e18" contenteditable="true"></td>
+             <td id="f18" contenteditable="true" colspan="3"></td>
+             <!-- <td id="g18" contenteditable="true"></td> -->
+             <!-- <td id="h18" contenteditable="true"></td> -->
+             <td id="i18" contenteditable="true"></td>
+             <td id="j18" contenteditable="true"></td>
+             <td id="k18" contenteditable="true"></td>
+             <td id="l18" contenteditable="true" colspan="3"></td>
+             <!-- <td id="m18" contenteditable="true"></td> -->
+             <!-- <td id="n18" contenteditable="true"></td> -->
+        </tr>
+
+         <tr class="bold-border-top-bottom">
+             <td id="a19" contenteditable="true">合　　計</td>
+             <td id="b19" contenteditable="true"></td>
+             <td id="c19" contenteditable="true">× 1.02 ＝ </td>
+             <td id="d19" contenteditable="true"></td>
+             <td id="e19" contenteditable="true" colspan="2">実効予算/予算上限額</td>
+             <!-- <td id="f19" contenteditable="true"></td> -->
+             <td id="g19" contenteditable="true">　＝　</td>
+             <td id="h19" contenteditable="true"></td>
+             <td id="i19" contenteditable="true"></td>
+             <td id="j19" contenteditable="true">× 1.02 - </td>
+             <td id="k19" contenteditable="true"></td>
+             <td id="l19" contenteditable="true">実効予算/予算上限額</td>
+             <td id="m19" contenteditable="true">　=　</td>
+             <td id="n19" contenteditable="true"></td>
+        </tr>
+
+        <tr>
+             <td id="a20" contenteditable="true" colspan="14">・金額は総て消費税込みとする。　　　・各項目小数点は四捨五入する事。　　・パーセント部分は小数点2桁まで記入する事。　　　・休日とは会社(北斗)の休日とする。</td>
+        </tr>
+
+        </tr>
+
+
+
+        <!-- 他の行を追加 -->
+    </tbody>
+</table>
+  <button id="perfSaveBtn">実績表を保存</button>
+  <button id="modal-close">閉じる</button>
+
+</div>
+  </div>
+</div>
+
+<!-- ✅ モーダルを開くボタン -->
+<!--　<button onclick="openModal()">実績表を作成</button> -->
+
+
+<!-- ここから材料費・工数・外注費のエリア****************************************************************************** -->
+
+<!-- 材料費・工数・外注費モーダル -->
+<div id="modalOverlayCosts" class="modal-overlay">
+  <div class="modal-content">
+    <h1>材料費・工数・外注費</h1>
+
+    <table class="small-table">
+      <tr>
+        <td class="label-cell">工事番号</td>
+        <td colspan="3"><input type="text" id="kouji_number_cost" name="kouji_number_cost"></td>
+      </tr>
+    </table>
+
+    <h2>材料費</h2>
+    <p>保存したいエクセルのセル(範囲)を選択してコピ－して点線枠内に貼り付けしてください。</p>
+    <div id="pasteArea1" class="pasteArea" contenteditable="true"></div>
+
+    <h2>工　数</h2>
+    <div id="pasteArea2" class="pasteArea" contenteditable="true"></div>
+
+    <h2>外注費</h2>
+    <div id="pasteArea3" class="pasteArea" contenteditable="true"></div>
+
+    <div id="saveButtons" class="button-bar">
+      <div class="left-buttons">
+        <button id="createBtn">新規保存</button>
+        <button id="updateBtn">上書き保存</button>
+      </div>
+      <div class="right-buttons">
+        <button id="closeCostsModalBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<script src="js/orders.js"></script>
+
+<script src="js/performance.js"></script>
+
+<script src="js/costs.js"></script>
+
+</body>
+</html>

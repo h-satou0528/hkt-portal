@@ -1,0 +1,127 @@
+/* ==== 以下 画面幅に応じて縮小 ==== */
+
+/* 1600px 以下（フルHD未満） */
+@media (max-width: 1600px) {
+  html, body { font-size: 11px; }
+}
+
+/* 1400px 以下（一般的ノートPC） */
+@media (max-width: 1400px) {
+  html, body { font-size: 10px; }
+}
+
+/* 1200px 以下（小さめデスクトップ） */
+@media (max-width: 1200px) {
+  html, body { font-size: 9px; }
+}
+
+/* 1000px 以下（タブレット横向き） */
+@media (max-width: 1000px) {
+  html, body { font-size: 8px; }
+}
+
+/* 800px 以下（タブレット縦 or 小型ノート） */
+@media (max-width: 800px) {
+  html, body { font-size: 7px; }
+}
+
+
+
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+h1 {
+  color: #e0dde7;/*文字色*/
+  padding: 0.5em 0;/*上下の余白*/
+  border-top: solid 3px #364e96;/*上線*/
+  border-bottom: solid 3px #364e96;/*下線*/
+background-color: #3105f5fa;
+}
+
+h1 {
+  text-align: center;
+}
+
+h2 {
+  color: #0940e2;/*文字色*/
+  text-align: center;
+  
+}
+
+P {
+  background: #c2eeff;/*背景色*/
+  padding: 0.5em;/*文字まわり（上下左右）の余白*/
+}
+
+.center-box {
+  width: 400px;
+  margin: 0 auto; /* ← 中央寄せの基本！ */
+  padding: 20px;
+  background-color: #f0f8ff;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.logout-link {
+  color: whitesmoke; /*色 */
+  text-decoration: none;
+}
+.logout-link:hover {
+  color: yellow;
+}
+
+.eLearning {
+  width: 400px;
+  margin: 0 auto; /* ← 中央寄せの基本！ */
+  padding: 20px;
+  background-color: #f0f8ff;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+
+}
+
+/* ログアウトボタンの背景を透明にする */
+#logoutBtn {
+  background-color: transparent; /* 背景を透明に */
+  border: none;                  /* 枠線を消す */
+  cursor: pointer;               /* マウスを乗せた時に指マークにする */
+  padding: 0;                    /* 余計な余白を消す */
+  color: inherit;                /* 文字色を親要素に合わせる（または指定する） */
+  outline: none;                 /* クリック時の青い枠線を消す（任意） */
+}
+
+
+/* メインメニューにマウスを乗せた時（hover）のスタイル */
+button[data-path]:hover {
+  background-color: #007bff;    /* 背景を青色に */
+  color: white;                 /* 文字を白色に */
+  border-color: #0056b3;        /* 枠線を濃い青に */
+  transform: translateY(-2px);  /* 少し上に浮き上がらせる */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影をつけて立体感を出す */
+}
+
+/* メインメニューをクリックした瞬間（active）のスタイル */
+button[data-path]:active {
+  transform: translateY(0);     /* 押した感じを出すために位置を戻す */
+  box-shadow: none;
+}
+
+/* ログアウトにマウスを乗せた時（hover）のスタイル */
+#logoutBtn:hover {
+  background-color: #007bff;    /* 背景を青色に */
+  color: white;                 /* 文字を白色に */
+  border-color: #0056b3;        /* 枠線を濃い青に */
+  transform: translateY(-2px);  /* 少し上に浮き上がらせる */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影をつけて立体感を出す */
+}
+
+/* ログアウトをクリックした瞬間（active）のスタイル */
+#logoutBtn:active {
+  transform: translateY(0);     /* 押した感じを出すために位置を戻す */
+  box-shadow: none;
+}

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ログイン</title>
+</head>
+<body>
+  <h2>ログイン画面</h2>
+  <form id="loginForm">
+    <input type="hidden" id="csrfToken" name="_csrf">
+    <label>ユーザー名: <input type="text" name="username" autocomplete="username" required></label><br>
+    <label>パスワード: <input type="password" name="password" autocomplete="current-password" required></label><br>
+    <button type="submit">ログイン</button>
+  </form>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>

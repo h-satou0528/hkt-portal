@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>社員覧</title>
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="description" content="">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勤力</title>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#fafafa">
+
+
+  <style>
+    /* タイトル（会社名）を中央に配置 */
+    .header {
+        text-align: center;
+        font-size: 100px;
+        font-weight: bold;
+    }
+
+    /* 時計を右端に配置 */
+    #clock {
+        font-size: 35px;
+        font-weight: bold;
+        color: rgb(217, 255, 0);
+        position: absolute;
+        top: 30px;
+        right: 20px;
+    }
+
+    
+</style>
+
+
+
+
+
+
+
+</head>
+
+<body>
+	<body bgcolor="#F0FFFF" text="文字色">	
+    	<h1>社出状況一覧</h1>
+      
+     
+      <div id="clock">00:00:00</div>
+     
+
+      <script>
+          function updateClock() {
+              const now = new Date();
+              const hours = String(now.getHours()).padStart(2, '0');  // 2桁にする
+              const minutes = String(now.getMinutes()).padStart(2, '0');
+              const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+              document.getElementById("clock").textContent = `${hours}:${minutes}:${seconds}`;
+          }
+  
+          setInterval(updateClock, 1000);  // 1秒ごとに更新
+          updateClock();  // 初回すぐに実行
+      </script>
+     
+
+	 
+    		
+
+
+
+    <button id="test1">クリック</button>
+
+
+    
+    <script src="js/script.js"></script>
+
+    
+</body>
+
+</html>

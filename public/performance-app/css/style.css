@@ -1,0 +1,818 @@
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+
+body {
+background-color:#F0FFFF;
+}
+
+h1 {
+  color: #e0dde7;/*文字色*/
+  padding: 0.2em 0;/*上下の余白*/
+  border-top: solid 3px #364e96;/*上線*/
+  border-bottom: solid 3px #364e96;/*下線*/
+background-color: #3105f5fa;
+}
+
+h1 {
+  text-align: center
+}
+
+h2 {
+  color: #0940e2;/*文字色*/
+  text-align: center
+}
+
+h3 {
+  color: #070707;/*文字色*/
+  text-align: center
+}
+
+h4 {
+  color: #070707;/*文字色*/
+  text-align: center
+}
+
+P {
+  background: #c2eeff;/*背景色*/
+  padding: 0.5em;/*文字まわり（上下左右）の余白*/
+}
+
+.handsontable .currentRow {
+  background-color: #F9F9FB;  /*色を選択*/
+}
+
+.handsontable .currentCol {
+  background-color: #E7E8EF;  /*色を選択*/
+}
+
+/*税込 金額のクラス名で右寄*/
+.right-align {
+  text-align: right;
+  padding-right: 10px;
+}
+
+
+/*工事命令書の工事完了で工事番号の背景を緑色にする*/
+.completed td:first-child {
+  background-color: #00fa9a; /* 緑 */
+  font-weight: bold;
+}
+
+/* 工事完了ボタンを薄い緑 */
+.ui-dialog-buttonpane .complete-button {
+  background-color: #00fa9a;   /* 緑色 */
+  color: #155724;             /* 緑文字 */
+  border: 1px solid green;
+}
+
+/* 欠番にするボタンを薄い赤 */
+.ui-dialog-buttonpane .cancel-button {
+  background-color: #ff69b4;  /* 薄い赤 */
+  color: #721c24;             /* 濃い赤文字 */
+  border: 1px solid red;
+}
+
+/* 欠番取消ボタンを薄い赤 */
+.ui-dialog-buttonpane .uncancel-button {
+  background-color: #ff69b4;  /* 薄い赤 */
+  color: #721c24;             /* 濃い赤文字 */
+  border: 1px solid red;
+}
+
+input[type="text"] {
+  border: none;/*文字まわり線*/
+  outline: none;
+  background-color: transparent;
+  width: 100%;
+  padding: 4px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+output[type="text"] {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  width: 100%;
+  padding: 4px;/*文字まわり（上下左右）の余白*/
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+
+
+.amount-input {
+  text-align: right;
+}
+.amount-output {
+  text-align: right;
+  font-weight: bold;
+}
+
+
+.approval-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+.approval-table th,
+.approval-table td {
+  border: 1px solid #999;
+  padding: 10px;
+}
+.approval-table select {
+  border: none;/*文字まわり線*/
+  width: 100%;
+  padding: 5px;
+  font-size: 14px;
+}
+
+
+.label-cell {
+  background-color: #f0f8ff;/*枠内の色文字まわり線*/
+}
+
+
+.ijou {
+   text-align: right;
+  font-weight: bold;
+}
+
+
+/*ここから実績表エリア*/
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    border: 2px solid #ddd;
+    padding: 8px;
+}
+th {
+    background-color: #f4f4f4;
+}
+[contenteditable] {
+    outline: none;
+}
+
+
+.budget-title {
+    border: 2px solid #000; /* 枠線の設定 */
+    padding: 10px; /* 内側の余白 */
+    margin-bottom: 10px; /* 表との間隔 */
+    text-align: center; /* 中央揃え */
+    font-weight: bold; /* 文字を太く */
+    background-color: #f4f4f4; /* 背景色を設定 */
+}
+
+
+
+/*金額欄のスタイルを整える*/
+#spreadsheet td {
+  text-align: right;
+  padding: 4px 8px;
+}
+
+/*承認欄*/
+.approval-table2 {
+  width: 40%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 16px;
+   border: 1px solid black; /* テーブル枠の追加 */
+}
+/* 各ヘッダーとセルに横線・縦線を明示的に追加 */
+.approval-table2 th,
+.approval-table2 td {
+  border: 1px solid #999;
+  padding: 10px;
+}
+.approval-table2 select {
+  border: none;/*文字まわり線*/
+  width: 100%;
+  padding: 5px;
+  font-size: 14px;
+}
+
+.divider-line {
+  border-top: 1px solid #999;
+  margin: 5px 0;
+}
+
+/*額表の枠線など */
+.block {
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.bordered {
+  border: 2px solid #333;
+  border-radius: 6px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.form-row label {
+  width: 160px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.form-row input {
+  padding: 5px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc; /* グレーの枠線を表示 */
+  border-radius: 4px; /* 角を丸くしたい場合 */
+}
+
+.form-row span {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.underline {
+  border-bottom: 1px solid black;
+  display: inline-block;
+  padding-bottom: 3px;
+}
+
+.no-border input {
+  border: none;
+  border-bottom: 1px solid #999;
+  outline: none;
+}
+
+
+/*額表のブロックを並べる */
+.container-flex {
+  display: flex;
+  justify-content: space-between; /* 左・中央・右に分ける */
+  align-items: flex-start;
+  gap: 20px; /* 間隔を空ける（任意） */
+  margin-top: 20px;
+}
+
+/* 各ブロックの調整（左上） */
+.block1 {
+  padding: 10px;
+  background-color: #ffffff;
+    font-size: 18px;
+}
+
+.bordered {
+  border: 1px solid #000;
+}
+
+/* 右側の承認表（任意のデザイン） */
+.approval-table2 {
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+}
+
+.block bordered {
+  padding: 10px;
+  background-color: #f9f9f9
+
+  }
+
+
+
+
+
+
+
+  /* モーダル全体（画面の中央に表示） */
+.modal-overlay {
+  display: none; /* 初期は非表示 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明の背景 */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: auto;
+}
+
+/* モーダルの中身 */
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 1400px;
+  width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 閉じるボタン */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+}
+
+/* モーダルを開くボタン */
+button {
+  margin: 20px;
+}
+
+/* スブレットシート内の文字 */
+#spreadsheet {
+  font-size: 16px; /* 表全体の文字サイズを変更 */
+}
+
+#spreadsheet th, #spreadsheet td {
+  font-size: 12px; /* 各セルやヘッダーの文字サイズを個別に指定可能 */
+}
+
+
+
+
+/*「コメント記入欄」*/
+.comment-cell {
+  text-align: left;        /* 左寄せ */
+  white-space: normal;     /* 自動改行を許可（←これ重要） */
+  /*word-break: break-word;  /* 単語が長いときに折り返す */
+  border: 1px solid #aaa;  /* 枠線 */
+  padding: 8px;            /* 内側の余白 */
+  font-size: 14px;         /* テキストサイズ */
+  line-height: 1.5;        /* 行間 */
+}
+
+#spreadsheet th {
+  background-color: #f0f8ff;  /* すべてのthに適用 */
+  color: #000;
+}
+
+  /* jQuery UI モーダルのオーバーレイ背景 */
+  .ui-widget-overlay {
+    background-color: rgba(0, 0, 0, 90); /* 半透明の黒背景 */
+  }
+
+/*工事命令書のhtmlの実績表リストの項目の色*/
+   th.area-header {
+    background-color: #f0e65d; /* お好みの色に変更OK */
+  }
+/*工事命令書のhtmlの実績表リストの項目の色*/
+   th.area-header2 {
+    background-color: #6fe99e; /* お好みの色に変更OK */
+  }
+
+
+  th.area-header {
+    background-color: #e0f3ff;
+  }
+  th.area-header2 {
+    background-color: #fce5cd;
+  }
+
+/*工事命令書の下のボタン*/
+  .ui-dialog-buttonset button.jisseki-button {
+    background-color: #007bff;
+    color: rgb(43, 41, 41);
+
+  }
+
+ /*受注金額と予算上限額の￥マークをつてけ右詰め  */
+.form-row input[type="text"],
+.form-row span {
+  text-align: right;         /* ✅ 金額を右詰めに */
+   padding-right: 0.5em;      /* ✅ 少し右マージン */
+   min-width: 120px;          /* 任意：入力欄の幅を確保 */
+   display: inline-block;
+  box-sizing: border-box;
+}
+
+
+/*19行目の上下左右ラインを太くする*/
+.bold-border-top-bottom td {
+  border-top: 3px solid black;
+  border-bottom: 3px solid black;
+}
+
+/*ID指定でセルに背景色を付ける*/
+#f9, #h9, #l9, #n9 {
+   background-color: #f0f8ff;
+  font-weight: bold;
+  text-align: center !important;
+}
+
+#a20 {
+  text-align: left !important;
+}
+
+/*テーブルを広げる処理*/
+/*#orderList {
+  font-size: 15px;   /* ←ここで文字サイズを調整（例: 12px） */
+/*  width: max-content; /* ← これで中身に応じてテーブルが広がる */
+/*}*/
+
+#orderList {
+  font-size: 14px; /* 通常PCサイズ */
+}
+/* フルHD未満（1600px以下） */
+@media (max-width: 1600px) {
+  #orderList { font-size: 11px; }
+}
+/* ノートPCサイズ（1400px以下） */
+@media (max-width: 1400px) {
+  #orderList { font-size: 10px; }
+}
+/* ちょっと小さめ（1200px以下） */
+@media (max-width: 1200px) {
+  #orderList { font-size: 9px; }
+}
+/* タブレットや小型画面（1000px以下） */
+@media (max-width: 1000px) {
+  #orderList { font-size: 8px; }
+}
+
+
+
+
+/*横にスクロール処理*/
+#orderListWrapper {
+  overflow-x: auto;
+  max-width: 100%;      /* 横スクロールさせる */
+}
+
+/*行と列の表示崩れを防止処理*/
+#orderList th,
+#orderList td {
+  white-space: nowrap;
+  border: 1px solid #333;
+  padding: 4px 6px;/* セル内の余白を小さめに */
+}
+
+
+/* 工事情報ブロックの左寄せ入力 */
+.block.bordered .form-row input[name="kouji_number"],
+.block.bordered .form-row input[name="kouji_supplier"],
+.block.bordered .form-row input[name="kouji_kenmei"] {
+  text-align: left;        /* 左寄せ */
+  padding-left: 1em;     /* 左に少しマージン */
+}
+
+/* 受注金額と予算上限の金額を右寄せ */
+/* 金額系を右寄せ */
+/*#amountA {
+/*  text-align: right;      /* 数字を右寄せ */
+/*  padding-right: 10em;   /* 右余白 */
+/*  min-width: 120px;       /* 横幅を揃える */
+/*  display: inline-block;  
+/*  box-sizing: border-box; /* 幅の計算を安定させる */
+/*}
+
+#limitAmount {
+  display: inline-block;
+  text-align: right;
+  padding-right: 10em;
+  min-width: 322px;
+  height: 28px;              /* input の高さに合わせる */
+/*  line-height: 28px;         /* 数字を縦方向中央に */
+/*  border: 1px solid #ccc;    /* input と同じ枠線 */
+/*  border-radius: 4px;        /* input の角丸に合わせる */
+/*  box-sizing: border-box;
+/*  background-color: #f9f9f9; /* 読取専用感を出す */
+/*}
+
+
+/*欠番の色と取り消し線*/
+tr.canceled td {
+  text-decoration: line-through;
+  color: rgb(202, 117, 117);
+  background-color: #f5f5f5;
+}
+
+
+/* 差戻 → 薄い赤色 */
+td.status-sashimodoshi {
+  background-color: #ff69b4; /* 薄い赤 */
+}
+
+/* 完了 → 薄い緑色 */
+td.status-kanryo {
+  background-color: #00fa9a; /* 薄い緑 */
+}
+
+
+/* ********************ここから材料費・工数・外注費のエリア*********************** */
+
+/*既存のモーダルと同じスタイル*/
+.pasteArea {
+  border: 2px dashed #888;
+  padding: 10px;
+  min-height: 100px;
+  margin-bottom: 20px;
+  background-color: #fafafa;
+}
+
+.pasteArea table {
+  border-collapse: collapse;
+}
+
+
+
+/*工事番号の入力枠左側*/
+   .small-table {
+    width: 400px;              /* 幅を固定（必要に応じて調整） */
+     margin-left: 0;            /* 左寄せ */
+     margin-right: auto;        /* 右側を自動で空ける */
+     border-collapse: collapse; /* 枠の隙間をなくす */
+   }
+/*工事番号の入力枠の上下幅*/
+   .small-table td {
+    padding: 8px;
+    border: 1px solid #ccc;
+  }
+/*工事番号の文字*/
+  .label-cell {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+
+  /*ボタンの横並びレイフウト*/
+  .button-bar {
+  display: flex;
+  justify-content: space-between; /* 左右に分ける */
+  align-items: center;
+  margin-top: 20px;
+}
+
+.left-buttons button {
+  margin-right: 10px;
+}
+
+.right-buttons button {
+  margin-left: 10px;
+}
+
+
+
+
+
+/* 工事命令書モーダル全体を小さく */
+#modalForm {
+  font-size: 12px;   /* 文字サイズ */
+}
+
+/* 見出しも一緒に調整 */
+#modalForm h3 {
+  font-size: 14px;
+}
+
+#modalForm h4 {
+  font-size: 13px;
+}
+
+#modalForm h5 {
+  font-size: 12px;
+}
+
+/* input / select / textarea の文字 */
+#modalForm input,
+#modalForm select,
+#modalForm textarea {
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+/* テーブル全体 */
+#modalForm table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* セルの余白を縮小 */
+#modalForm td,
+#modalForm th {
+  padding: 4px 6px;
+}
+
+
+
+
+
+/* モーダル上段の文字サイズ */
+.container-flex {
+  font-size: 12px;
+}
+
+.container-flex input,
+.container-flex select {
+  font-size: 12px;
+}
+
+/* ===============================
+   承認欄（帳票スタイル）
+================================ */
+
+/* テーブル全体 */
+.approval-table2 {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  table-layout: fixed;
+}
+
+/* 見出し */
+.approval-table2 th {
+  border: 1px solid #000;
+  background: #f0f0f0;
+  text-align: center;
+  font-weight: normal;
+  padding: 3px 2px;
+  letter-spacing: 0.1em;
+}
+
+/* セル */
+.approval-table2 td {
+  border: 1px solid #000;
+  text-align: center;
+  vertical-align: middle;
+  padding: 2px;
+}
+
+/* 実効 / 実績 表示 */
+.approval-text {
+  font-size: 10px;
+  line-height: 1.2;
+  margin: 2px 0;
+}
+
+/* 区切り線（上下分割） */
+.approval-table2 .divider-line {
+  border-top: 1px dashed #000;
+  margin: 3px 0;
+}
+
+/* セレクト（判子欄風） */
+.approval-table2 select {
+  width: 100%;
+  font-size: 10px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding: 2px 0;
+}
+
+/* セレクトにフォーカスしても枠を出さない */
+.approval-table2 select:focus {
+  outline: none;
+}
+
+/* 記事欄 */
+.approval-table2 .comment-cell {
+  min-height: 28px;
+  padding: 4px;
+  font-size: 11px;
+  text-align: left;
+}
+
+.approval-table2 select option[value="承認"] {
+  font-weight: bold;
+}
+
+.approval-table2 {
+  width: 100%;
+  table-layout: fixed;   /* ← これが重要 */
+}
+.approval-table2 th:first-child,
+.approval-table2 td:first-child {
+  width: 16%;
+}
+
+.approval-table2 th:not(:first-child),
+.approval-table2 td:not(:first-child) {
+  width: 13%;
+}
+.approval-table2 .comment-cell {
+  width: 100%;
+}
+
+/*承認枠の縦幅を広げる*/
+.approval-text {
+  padding: 6px 0;
+  line-height: 1.6;
+}
+
+.approval-table2 select {
+  height: 40px;
+  line-height: 30px;
+}
+
+.approval-table2 td {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+/* ===============================
+   工事情報ブロック（帳票調整）
+================================ */
+
+.block.bordered {
+  border: 2px solid #000;
+  border-radius: 8px;
+  padding: 14px 18px;
+  max-width: 700px;
+}
+
+/* 1行 */
+.block.bordered .form-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: center;
+  column-gap: 12px;
+  margin-bottom: 10px;
+}
+
+/* ラベル */
+.block.bordered label {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* input 共通 */
+.block.bordered input[type="text"],
+.block.bordered input[type="date"] {
+  font-size: 12px;
+  padding: 4px 6px;
+  height: 28px;
+  box-sizing: border-box;
+}
+
+/* 工期（2つ並ぶ行） */
+.block.bordered .form-row input[type="date"] {
+  width: 140px;
+}
+
+/* ～ 記号 */
+.block.bordered .form-row span.range {
+  margin: 0 6px;
+}
+
+/* 金額表示 */
+#amountA,
+#limitAmount {
+  text-align: center;
+  padding-right: 10px;
+  font-weight: bold;
+}
+
+#amountA {
+  display: inline-block;
+  width: 100%;
+  padding: 4px 6px;
+  height: 28px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  background: #f8f8f8;
+}
+
+
+
+/* span金額もinput風に */
+#limitAmount {
+  display: inline-block;
+  width: 100%;
+  padding: 4px 6px;
+  height: 28px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  background: #f8f8f8;
+}
+
+/* 工期行だけ横並びにする */
+.term-fields {
+  display: flex;
+  align-items: center;
+}
+
+.term-fields input[type="date"] {
+  width: 140px;
+}
+
+.term-fields .range {
+  width: 32px;              /* ← 固定幅 */
+  text-align: center;       /* ← 中央寄せ */
+  white-space: nowrap;
+}

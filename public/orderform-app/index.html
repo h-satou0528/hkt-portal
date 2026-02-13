@@ -1,0 +1,187 @@
+<!doctype html>
+
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>注文票</title>
+  <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'"> -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+
+<h1 class="title">発注材料一覧</h1>
+
+<div class="modal-buttons" style="display: flex; align-items:center; gap: 60px;">
+
+
+<div class="page-container">
+  <header>
+    <button id="openFormBtn">発注材料入力フォーム</button>
+
+    <label>並び替え：
+      <select id="sortSelect">
+        <option value="created_desc">登録順(新しい順)</option>
+        <option value="created_asc">登録順(古い順)</option>
+        <option value="kouji_asc">工事番号昇順</option>
+        <option value="kouji_desc">工事番号降順</option>
+      </select>
+    </label>
+
+    <label>検索：
+      <input id="searchInput" placeholder="部門/工事番号/発注先/発注者/品名/形式 で検索">
+    </label>
+
+    <div class="header-box summary-box">
+    <div class="summary-area">
+  <input type="text" id="summaryKoujiNumber" placeholder="工事番号を入力">
+<button id="showSummaryBtn">小計テーブル表示</button>
+</div></div>
+
+<div class="header-box cd-search-box">
+<label for="cdSelect">CDで検索</label>
+<select id="cdSelect">
+  <option value=""> 選択 </option>
+  <option value="A">A</option>
+  <option value="B">B</option>
+  <option value="C">C</option>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+</select>
+
+<button id="searchByCdBtn" type="button">検索</button>
+</div>
+
+
+  </header>
+
+  <main>
+    <div id="orderList">
+    <table id="orderTable">
+      <thead>
+        <tr>
+          <th>部門</th><th>工事番号</th><th>区分</th><th>CD</th><th>発注先</th><th>発注者</th><th>発注日</th><th>メーカー</th><th>品　　名</th><th>型　　式</th><th>数量</th><th>単位</th><th>単価</th><th>金額(税抜)</th><th>金額(税込)</th><th>定価(単価)</th><th>納品日</th><th>M</th><th>C</th><th>請求書</th><th>備考</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+  </div>
+</div>
+  <!-- モーダル（シンプルな実装） -->
+  <div id="modal" class="hidden modal-overlay">
+  <div class="modal-content">
+ <!-- 🔹タイトルは form-grid の外に出す -->
+    <h2 class="modal-title">注文票 入力フォーム</h2>
+
+
+    <form id="orderForm" class="form-grid">
+
+      <input type="hidden" name="id" id="id">
+
+      <label>部　門
+        <select name="department" id="department">
+          <option>選択必須</option>
+          <option>1技</option>
+          <option>2技</option>
+          <option>函館</option>
+          <option>三久</option>
+        </select>
+      </label>
+
+      <label>工事番号　 <input name="kouji_number" id="kouji_number" placeholder="入力必須"></label>
+
+      <label>区　分　　 <input name="category" id="category"></label>
+      <label>ＣＤ　　　
+        <select name="cd" id="cd">
+          <option value=""></option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+  </select>
+</label>
+      
+      <label>発注先 <input name="supplier" id="supplier"></label>
+      <label>発注者　　 <input name="orderer" id="orderer"></label>
+      <label>発注日　　 <input name="order_date" id="order_date" placeholder="yyyy-mm-dd"></label>
+      <label>メーカー名 <input name="maker" id="maker"></label>
+      <label>品　名 <input name="product_name" id="product_name"></label>
+      <label>型　式　　 <input name="model" id="model"></input></label>
+      <label>数　量　　 <input name="quantity" id="quantity" type="number" step="1"></label>
+      <label>単　位　　 <input name="unit" id="unit"></label>
+      <label>単　価 <input name="unit_price" id="unit_price" type="text"></label>
+      <label>金額(税抜 ) <input name="amount_ex" id="amount_ex" type="text"></label>
+      <label>金額(税込 ) <input name="amount_inc" id="amount_inc" type="text"></label>
+      <label>定　価　　 <input name="list_price" id="list_price" type="text"></label>
+      <label>納品日 <input name="delivery_date" id="delivery_date" placeholder="yy/mm/dd"></label>
+       <div class="field small-group">
+      <label>Ｍ　　　　<input name="M" id="M" readonly></label>
+      </div>
+ <div class="field small-group">
+      <label>Ｃ　　　　
+          <select id="C_select">
+          <option value="">--選択--</option>
+          <option>本社C</option>
+          <option>A</option>
+          <option>B</option>
+          <option>C</option>
+        </select>
+       <!-- <input id="C_text" placeholder="自由入力可"> --->
+      </label>
+      </div>
+
+      <label>請求書日 　<input name="invoice_date" id="invoice_date" placeholder="yy/mm/dd"></label>
+
+      <label>備　考 <textarea id="notes"></textarea></label>
+
+      <div class="field small-group">
+  <label>税計算　　
+    <select id="taxOption">
+      <option value="">--オプション--</option>
+      <option value="reduced">軽減税率（8%）</option>
+      <option value="invoice">インボイス納税額</option>
+    </select>
+  </label>
+</div>
+
+<div class="field small-group">
+  <label>税計算結果
+    <input id="taxResult" readonly>
+  </label>
+</div>
+
+</form>
+<div class="modal-buttons">
+      <button type="button" id="saveBtn">登　録</button>
+      <button type="button" id="updateBtn" class="hidden">上書き保存</button>
+      <button type="button" id="closeBtn">閉じる</button>
+      <button type="button" id="deleteBtn" class="hidden">削　除</button>
+      <!-- ★ 追加 -->
+      <button type="button" id="cloneSaveBtn" class="hidden">新規として登録</button>
+</div>
+   <!-- </form> -->
+  </div>
+</div>
+
+<div id="summaryModal" class="modal-overlay hidden">
+  <div class="modal-content">
+
+    
+    <div id="summaryTableContainer"></div>
+    <button id="closeSummaryModal" class="modal-close-btn">閉じる</button>
+  </div>
+</div>
+
+
+  <script src="js/orderform.js"></script>
+
+</body>
+</html>

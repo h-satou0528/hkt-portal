@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+   <title>ログイン済みポータル</title> 
+ <link rel="stylesheet" href="css/style.css">
+  <meta name="description" content="">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+ 
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Google Fonts: Noto Sans JP -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+
+
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#fafafa">
+
+
+  <style>
+
+
+
+ body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background-color: #004080;
+      color: white;
+      padding: 1em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      z-index: 1000;
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    header .logo img {
+      height: 60px;
+      margin-right: 10px;
+    }
+
+    header nav button {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin-left: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    main {
+      display: flex;
+      margin-top: 60px; /* headerの高さ分 */
+      height: calc(100vh - 60px);
+    }
+
+    .left-panel {
+      width: 10%;
+      background-color: #f0f0f0;
+      border-right: 1px solid #ccc;
+      padding: 1em;
+      box-sizing: border-box;
+    }
+
+    .right-panel {
+      flex-grow: 1;
+      padding: 1em;
+      box-sizing: border-box;
+      /*試験で止めています。
+      overflow-y: auto; */
+
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+
+/*左メニューlink_button*/
+.link_button {
+  font-weight: bold;/*太字に*/
+  text-decoration: none;/*下線消す*/
+  background: blue;/*背景を水色に*/
+  color:white;/*文字を白に*/
+  padding:5px 10px;/*内側の余白*/
+  border-radius: 20px;/*角を丸くする*/
+  font-family: 'Avenir','Arial';/*フォントをいい感じに*/
+}
+/*以下カーソルを当てたとき*/
+.link_button:hover {
+  background: silver;/*背景色をシルバーに*/
+  text-decoration: none;/*下線を消す*/
+}
+
+/*以下訪問済みのデザイン*/
+.link_button:visited {
+  color: gray;/*文字をグレイに*/
+}
+    
+
+</style>
+
+ 
+</head>
+<body>
+
+
+
+
+
+
+<header>
+  <div class="logo">
+   <a href="index.html">
+    <img src="img/logo2.png" alt="アイコン">
+   </a>
+    <span>ログイン済みポータルメニュー</span>
+  </div>
+  <nav>
+    <button data-path="forum-app/index.html">お知らせ掲示板</button>
+    <button data-path="orderform-app/index.html">発注材料一覧</button>
+<button data-path="performance-app/index.html">工事命令書／実効予算・実績表</button>
+<button data-path="kouban-app/index.html">内川工事番号登録</button>
+<button data-path="ledger-app/index.html">工事台帳</button>
+
+
+
+    <!-- 他のボタンもここに追加可能 -->
+
+
+  </nav>
+
+<head>
+    <meta charset="UTF-8">
+    <title>時計表示</title>
+    <style>
+        /* 時計を右端に配置 */
+        #clock {
+            font-size: 35px;
+            font-weight: bold;
+            color: rgb(217, 255, 0);
+            position: absolute;
+            top: 30px;
+            right: 140px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="clock">00:00:00</div>
+
+    
+</body>
+
+
+
+<button id="logoutBtn" class="logout-link">ログアウト</button>
+
+<script src="/js/logout.js" defer></script>
+
+
+
+</header>
+
+<main>
+   <!-- カレンダーJSを読み込む -->
+     <div class="left-panel">
+    <!--  <h3>カレンダー</h3> -->
+
+
+
+  <div id="calendar"></div>
+
+    <div id="eLearning"><br><br>
+
+
+<a class="link_button">その他 </a><br><br>
+
+
+<div id="eleaningButton">
+ <button data-path="e-learning/index.html">ｅラーニング</button>
+</div><br>
+
+<div id="manual"></div>
+<a href="/manual/orderform.pdf" target="_blank">
+  発注材料一覧マニュアル
+</a>
+<br><br>
+<a href="/manual/performance.pdf" target="_blank">
+  工事命令書等マニュアル
+</a>
+</div>
+
+    </div>
+  </div>
+  <div class="right-panel">
+    <iframe id="content-frame" src=""></iframe>
+  </div>
+
+</main>
+
+
+
+        
+
+  <body bgcolor="#F0FFFF" text="文字色">	
+
+
+<!-- サニタイズ(エスケープ)JS -->
+<script src="/common/js/utils.js"></script>
+  <script src="js/menu.js"></script>
+      <script src="js/script.js"></script>
+
+
+</body>
+</html>
