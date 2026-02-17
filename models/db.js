@@ -1,5 +1,4 @@
-// models/db.js（ESM・最終確定）
-
+// models/db.js（Azure PostgreSQL 対応）
 import dotenv from "dotenv";
 import pg from "pg";
 
@@ -16,11 +15,12 @@ const config = process.env.DATABASE_URL
       ssl: { rejectUnauthorized: false },
     }
   : {
-      host: process.env.DB_HOST || "localhost",
-      user: process.env.DB_USER || "postgres",
-      password: process.env.DB_PASSWORD || "pass",
-      database: process.env.DB_NAME || "kouban_db",
-      port: process.env.DB_PORT || 5432,
+      host: process.env.PGHOST || "localhost",       // Azure PostgreSQL のホスト名
+      user: process.env.PGUSER || "postgres",       // ユーザー名
+      password: process.env.PGPASSWORD || "pass",   // パスワード
+      database: process.env.PGDATABASE || "kouban_db", // DB名
+      port: Number(process.env.PGPORT) || 5432,     // ポート
+      ssl: process.env.PGHOST ? { rejectUnauthorized: false } : false, // Azure 用 SSL
     };
 
 // --------------------

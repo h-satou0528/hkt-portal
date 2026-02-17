@@ -57,48 +57,72 @@ export default async function ledgerServer(app, csrfProtection) {
   // 一覧取得
   // ==========================
   router.get(
-    "/ledger",
-    csrfProtection,
-    [
-      query("q").optional().trim().escape()
-    ],
-    async (req, res) => {
+  "/ledger",
+  csrfProtection,
+  [
+    query("q").optional().trim().escape(),
+    query("sort").optional().trim()
+  ],
+  async (req, res) => {
 
-      if (handleValidationErrors(req, res)) return;
+    if (handleValidationErrors(req, res)) return;
 
-      const q = req.query.q || "";
-      const fiscalYear = await getCurrentFiscalYear();
+    const q = req.query.q || "";
+    const sort = req.query.sort || "created_desc";
+    const fiscalYear = await getCurrentFiscalYear();
 
-      let params = [fiscalYear];
-      let where = `WHERE fiscal_year = $1`;
+    let params = [fiscalYear];
+    let where = `WHERE fiscal_year = $1`;
 
-      if (q) {
-        params.push(`%${q.toLowerCase()}%`);
-        where += `
-          AND (
-            lower(kouji_number) LIKE $${params.length}
-            OR lower(client) LIKE $${params.length}
-            OR lower(construction) LIKE $${params.length}
-          )
-        `;
-      }
-
-      try {
-        const { rows } = await pool.query(`
-          SELECT *
-          FROM ledger
-          ${where}
-          ORDER BY created_at DESC
-        `, params);
-
-        res.json(rows);
-
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "DB error" });
-      }
+    if (q) {
+      params.push(`%${q.toLowerCase()}%`);
+      where += `
+        AND (
+          lower(department) LIKE $${params.length}
+          OR lower(kouji_number) LIKE $${params.length}
+          OR lower(client) LIKE $${params.length}
+          OR lower(construction) LIKE $${params.length}
+        )
+      `;
     }
-  );
+
+    // ------------------------
+    // 並び替え制御（安全設計）
+    // ------------------------
+    let orderBy = "ORDER BY created_at DESC";
+
+    switch (sort) {
+      case "created_asc":
+        orderBy = "ORDER BY created_at ASC";
+        break;
+      case "kouji_asc":
+        orderBy = "ORDER BY kouji_number ASC";
+        break;
+      case "kouji_desc":
+        orderBy = "ORDER BY kouji_number DESC";
+        break;
+    }
+
+    try {
+      const { rows } = await pool.query(
+        `
+        SELECT *
+        FROM ledger
+        ${where}
+        ${orderBy}
+        `,
+        params
+      );
+
+      res.json(rows);
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "DB error" });
+    }
+  }
+);
+
 
 
   // ==========================
@@ -122,41 +146,42 @@ export default async function ledgerServer(app, csrfProtection) {
         const { rows } = await pool.query(
           `
           INSERT INTO ledger (
-            fiscal_year,
-            department,
-            kouji_number,
-            remarks,
-            hkt39number,
-            reciveday,
-            client,
-            construction,
-            shipnumber,
-            tec_dep,
-            incharge,
-            comp_date1,
-            note,
-            p_amount,
-            transport_ex,
-            o_amount,
-            determ_amount,
-            comp_date2,
-            claim,
-            pub_date,
-            d_amount,
-            bill_amount,
-            deposit_total,
-            bill_transfer,
-            bank_name,
-            offset_amount,
-            transfer_amount,
-            depo_date1,
-            bill_amount2,
-            depo_date2,
-            cash,
-            depo_date3,
-            check,
-            depo_date4
-          )
+  fiscal_year,
+  department,
+  kouji_number,
+  remarks,
+  hkt39number,
+  reciveday,
+  client,
+  construction,
+  shipnumber,
+  tec_dep,
+  incharge,
+  comp_date1,
+  note,
+  p_amount,
+  transport_ex,
+  o_amount,
+  determ_amount,
+  comp_date2,
+  claim,
+  pub_date,
+  d_amount,
+  bill_amount,
+  deposit_total,
+  bill_transfer,
+  bank_name,
+  offset_amount,
+  transfer_amount,
+  depo_date1,
+  bill_amount2,
+  depo_date2,
+  cash,
+  depo_date3,
+  check_amount,
+  depo_date4
+)
+
           VALUES (
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
             $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
@@ -198,7 +223,7 @@ export default async function ledgerServer(app, csrfProtection) {
             f.depo_date2,
             f.cash,
             f.depo_date3,
-            f.check,
+            f.check_amount,
             f.depo_date4
           ]
         );
@@ -213,16 +238,17 @@ export default async function ledgerServer(app, csrfProtection) {
   );
 
 
-  // ==========================
-  // 更新
-  // ==========================
-  router.put(
-    "/ledger/:id",
-    csrfProtection,
-    checkFiscalOpen,
-    [param("id").isInt()],
-    async (req, res) => {
 
+// ==========================
+// 更新
+// ==========================
+router.put(
+  "/ledger/:id",
+  csrfProtection,
+  checkFiscalOpen,
+  [param("id").isInt()],
+  async (req, res) => {
+    try {
       if (handleValidationErrors(req, res)) return;
 
       const id = Number(req.params.id);
@@ -233,8 +259,14 @@ export default async function ledgerServer(app, csrfProtection) {
       let i = 1;
 
       for (const k in fields) {
-        set.push(`${k} = $${i++}`);
+        if (k === "id") continue; // idは更新しない
+
+        set.push(`"${k}" = $${i++}`); // ★ カラム名をダブルクォート
         values.push(fields[k]);
+      }
+
+      if (set.length === 0) {
+        return res.status(400).json({ error: "更新データがありません" });
       }
 
       values.push(id);
@@ -242,16 +274,27 @@ export default async function ledgerServer(app, csrfProtection) {
       const { rows } = await pool.query(
         `
         UPDATE ledger
-        SET ${set.join(", ")}, updated_at = now()
+        SET ${set.join(", ")},
+            updated_at = now()
         WHERE id = $${i}
         RETURNING *
         `,
         values
       );
 
+      if (!rows.length) {
+        return res.status(404).json({ error: "データが見つかりません" });
+      }
+
       res.json(rows[0]);
+
+    } catch (err) {
+      console.error("PUT ERROR:", err);
+      res.status(500).json({ error: "更新に失敗しました" });
     }
-  );
+  }
+);
+
 
 
   // ==========================
