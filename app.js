@@ -9,7 +9,7 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import bcrypt from "bcrypt";
-
+import connectPgSimple from "connect-pg-simple";
 import koubanServer from "./kouban-server.js";
 import forumServer from "./forum-server.js";
 import performanceServer from "./performance-server.js";
@@ -70,8 +70,17 @@ app.use(express.json());
 // --------------------
 // Session
 // --------------------
+// --------------------
+// Session（PostgreSQL保存）
+// --------------------
+const PgStore = connectPgSimple(session);
+
 app.use(
   session({
+    store: new PgStore({
+      pool: pool,
+      tableName: "user_sessions"
+    }),
     secret: process.env.SESSION_SECRET || "dev-secret",
     resave: false,
     saveUninitialized: false,
