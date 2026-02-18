@@ -30,27 +30,73 @@ function getCsrfToken() {
   }
 }
 
+// ==============================
+// 🆕 20日以内なら新着判定
+// ==============================
+function isNewPost(createdAt, updatedAt) {
+  const baseDate = updatedAt || createdAt;
+  if (!baseDate) return false;
+
+  const now = new Date();
+  const postDate = new Date(baseDate);
+
+  const diffDays = (now - postDate) / (1000 * 60 * 60 * 24);
+
+  return diffDays <= 20;
+}
 
 
-
-
-  function renderList() {
+function renderList() {
   const list = document.getElementById("postList");
   list.innerHTML = "";
-  posts.forEach((post, index) => {
+
+  // ===== 並び替えロジック =====
+  const sortedPosts = [...posts].sort((a, b) => {
+    const aNew = isNewPost(a.created_at, a.updated_at);
+    const bNew = isNewPost(b.created_at, b.updated_at);
+
+    // 🆕 新着優先
+    if (aNew !== bNew) return bNew - aNew;
+
+    // 更新日 or 投稿日で降順
+    const aDate = new Date(a.updated_at || a.created_at);
+    const bDate = new Date(b.updated_at || b.created_at);
+
+    return bDate - aDate;
+  });
+
+  // ===== 描画 =====
+  sortedPosts.forEach((post) => {
     const createdAt = new Date(post.created_at);
-    const formattedDate = `${createdAt.getFullYear()}/${createdAt.getMonth() + 1}/${createdAt.getDate()}`;
+    const formattedDate =
+      `${createdAt.getFullYear()}/${createdAt.getMonth() + 1}/${createdAt.getDate()}`;
+
+    const showNew = isNewPost(post.created_at, post.updated_at);
 
     const div = document.createElement("div");
     div.className = "post-item";
-    div.innerHTML = `<strong>${post.title}</strong><br>${formattedDate} / ${post.author}`;
-    div.onclick = () => showDetail(index);
-    if (index === selectedIndex) {
+
+    div.innerHTML = `
+      <strong>
+        ${post.title}
+        ${showNew ? '<span class="new-badge">🆕新着</span>' : ''}
+      </strong>
+      <br>
+      ${formattedDate} / ${post.author}
+    `;
+
+    // 元のindexを取得
+    const originalIndex = posts.findIndex(p => p.id === post.id);
+    div.onclick = () => showDetail(originalIndex);
+
+    if (originalIndex === selectedIndex) {
       div.style.backgroundColor = "#ddd";
     }
+
     list.appendChild(div);
   });
 }
+
 
 
 

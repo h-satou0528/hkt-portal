@@ -90,3 +90,9 @@ P {
   padding: 0.5em;/*文字まわり（上下左右）の余白*/
 }
 
+.new-badge {
+  color: red;
+  font-weight: bold;
+  margin-left: 8px;
+  font-size: 0.9em;
+}
