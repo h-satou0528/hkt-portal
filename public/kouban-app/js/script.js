@@ -436,7 +436,7 @@ function showBandaiList() {
 
   // 例: "2001-2049" → ["2001", "2049"]
   const [from, to] = selectedBandai.split("-");
-  const warekiCode = "07-";
+  const warekiCode = "08-";
 
   // 正しくエンコードされたURLを生成
   const params = new URLSearchParams({
