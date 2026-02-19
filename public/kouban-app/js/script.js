@@ -16,7 +16,7 @@ function getCsrfToken() {
 // 和暦変換（例：2025 → {label: "令和7年", code: "07"}）
 function convertToWareki(year) {
   const eras = [
-    { name: '令和', start: 2019, code: '07' },
+    { name: '令和', start: 2019, code: '08' },
     { name: '平成', start: 1989, code: '06' },
     { name: '昭和', start: 1926, code: '05' },
   ];
