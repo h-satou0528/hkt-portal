@@ -55,7 +55,8 @@ P {
 
 
 /*工事命令書の工事完了で工事番号の背景を緑色にする*/
-.completed td:first-child {
+/* .completed td:first-child,  /* 最初のセルに適用 */
+.completed td:nth-child(2) {
   background-color: #00fa9a; /* 緑 */
   font-weight: bold;
 }
@@ -815,4 +816,27 @@ td.status-kanryo {
   width: 32px;              /* ← 固定幅 */
   text-align: center;       /* ← 中央寄せ */
   white-space: nowrap;
+}
+
+
+/* 大工番の枠線を通常表示でも消す */
+select#department {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font: inherit;
+  padding: 0;
+}
+
+
+/* 印刷時に枠線を消す */
+@media print {
+  select#department {
+    border: none !important;
+    outline: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background: transparent !important;
+  }
 }

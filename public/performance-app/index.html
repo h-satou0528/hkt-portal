@@ -66,8 +66,39 @@
 
 <div style="display: flex; align-items:center; gap: 10px;">
 
+<select id="departmentFilter">
+  <option value="">大工番で表示</option>
+  <option>000_一般</option>
+  <option>200_京急</option>
+  <option>400_電中研関係</option>
+  <option>450_常石三保造船関係</option>
+  <option>500_JMU関係</option>
+  <option>600_正興電機製作所</option>
+  <option>650_JSW関係</option>
+  <option>700_住友関係</option>
+  <option>900_官庁関係</option>
+  <option>2000_艦テ関係</option>
+  <option>2050_テラテック関係</option>
+  <option>2100_日立製作所関係</option>
+  <option>2200_造船関係</option>
+  <option>2250_常石三保応援</option>
+  <option>2300_三波工業関係</option>
+  <option>2500_艦横工団関係</option>
+  <option>2550_工業団地一般</option>
+  <option>2600_CO2関係</option>
+  <option>2800_造船関係一般</option>
+  <option>2900_ME他造船関係</option>
+  <option>3001_函館</option>
+  <option>三久電設001_電中研</option>
+  <option>三久電設101_テクノ</option>
+  <option>三久電設201_官庁</option>
+  <option>三久電設501_一般</option>
+  <option>三久電設601_京急</option>
+  <option>三久電設701_北斗</option>
+</select>
 
-  <label for="sortSelect">リストの並び替え: </label>
+
+  <label for="sortSelect">リストの並替え: </label>
 <select id="sortSelect">
   <option value="asc"></option>
   <option value="asc">昇　順</option>
@@ -80,8 +111,8 @@
   
   <!-- 🔍 検索フォーム -->
   <div style="margin: 15px 0;">
-    <label for="searchInput"><strong> 　工事命令書検索：</strong></label>
-    <input type="text" id="searchInput" placeholder="ここに工事番号や文字を入力します。" style="width: 300px; padding: 5px; font-size: 14px; background-color: #e0f3ff;">
+    <label for="searchInput"><strong> 　検　索：</strong></label>
+    <input type="text" id="searchInput" placeholder="工事番号や文字を入力" style="width: 300px; padding: 5px; font-size: 14px; background-color: #e0f3ff;">
   </div>
 
 <!-- ✅ モーダルを開くボタン（削除厳禁） -->
@@ -104,6 +135,42 @@
 
   <table border="1">
     
+  <tr>
+  <td class="label-cell">大工番</td>
+  <td colspan="3">
+    <select name="department" id="department">
+      <option value="">選択必須</option>
+      <option>000_一般</option>
+      <option>200_京急</option>
+      <option>400_電中研関係</option>
+      <option>450_常石三保造船関係</option>
+      <option>500_JMU関係</option>
+      <option>600_正興電機製作所</option>
+      <option>650_JSW関係</option>
+      <option>700_住友関係</option>
+      <option>900_官庁関係</option>
+      <option>2000_艦テ関係</option>
+      <option>2050_テラテック関係</option>
+      <option>2100_日立製作所関係</option>
+      <option>2200_造船関係</option>
+      <option>2250_常石三保応援</option>
+      <option>2300_三波工業関係</option>
+      <option>2500_艦横工団関係</option>
+      <option>2550_工業団地一般</option>
+      <option>2600_CO2関係</option>
+      <option>2800_造船関係一般</option>
+      <option>2900_ME他造船関係</option>
+      <option>3001_函館</option>
+      <option>三久電設001_電中研</option>
+      <option>三久電設101_テクノ</option>
+      <option>三久電設201_官庁</option>
+      <option>三久電設501_一般</option>
+      <option>三久電設601_京急</option>
+      <option>三久電設701_北斗</option>
+    </select>
+  </td>
+</tr>
+
   <tr>
      <td class="label-cell">工事番号</td>
     <td colspan="3"><input type="text" id="kouji_number" name="kouji_number"></td>
@@ -220,7 +287,7 @@
     <!-- 上段のグループ見出し -->
     <tr>
       
-      <th colspan="9">工　事　命　令　書</th>
+      <th colspan="10">工　事　命　令　書</th>
       <th colspan="7" class="area-header">実 効 予 算 表</th>
       <th colspan="6" class="area-header2">実　　績　　表</th>
       <th colspan="1" class="area-header2">実績表</th>
@@ -228,6 +295,7 @@
     </tr>
     <!-- 下段の項目 -->
     <tr>
+      <th>大工番</th>
       <th>工事番号</th>
       <th>発注元</th> <!-- 追加 -->
       <th>工事件名</th>

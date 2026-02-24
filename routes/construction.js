@@ -17,6 +17,7 @@ router.post(
   const fiscalYear = req.fiscalYear;
 
   const {
+    department, // ← 追加
     kouji_number, mitsumori_number, hatchuusha, kouji_supplier, kouji_kenmei,
     order_date, expected_date, done_date,
     mitsumori_taxex, mitsumori_taxin, contract_taxex, contract_taxin,
@@ -26,6 +27,7 @@ router.post(
   try {
     await db.query(
       `INSERT INTO construction_orders (
+      department, -- ← 追加
         kouji_number, mitsumori_number, hatchuusha, kouji_supplier,
         kouji_kenmei, order_date, expected_date, done_date,
         mitsumori_taxex, mitsumori_taxin, contract_taxex, contract_taxin,
@@ -33,9 +35,10 @@ router.post(
         fiscal_year
       ) VALUES (
         $1,$2,$3,$4,$5,$6,$7,$8,
-        $9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20
+        $9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21
       )`,
       [
+        department || null,  // ← 追加（$1）
         kouji_number,
         mitsumori_number,
         hatchuusha,
@@ -98,6 +101,7 @@ router.put(
   const fiscalYear = req.fiscalYear;
 
   const {
+    department, // ← 追加
     kouji_number, mitsumori_number, hatchuusha, kouji_supplier, kouji_kenmei,
     order_date, expected_date, done_date,
     mitsumori_taxex, mitsumori_taxin, contract_taxex, contract_taxin,
@@ -107,28 +111,30 @@ router.put(
   try {
     const result = await db.query(
       `UPDATE construction_orders SET
-        kouji_number = $1,
-        mitsumori_number = $2,
-        hatchuusha = $3,
-        kouji_supplier = $4,
-        kouji_kenmei = $5,
-        order_date = $6,
-        expected_date = $7,
-        done_date = $8,
-        mitsumori_taxex = $9,
-        mitsumori_taxin = $10,
-        contract_taxex = $11,
-        contract_taxin = $12,
-        kaichou = $13,
-        shachou = $14,
-        torishimariyaku = $15,
-        soumu = $16,
-        buchou = $17,
-        hakkousha = $18,
-        article = $19
-       WHERE id = $20 AND fiscal_year = $21
-       RETURNING *`,
+  department = $1,        -- ← 追加
+  kouji_number = $2,
+  mitsumori_number = $3,
+  hatchuusha = $4,
+  kouji_supplier = $5,
+  kouji_kenmei = $6,
+  order_date = $7,
+  expected_date = $8,
+  done_date = $9,
+  mitsumori_taxex = $10,
+  mitsumori_taxin = $11,
+  contract_taxex = $12,
+  contract_taxin = $13,
+  kaichou = $14,
+  shachou = $15,
+  torishimariyaku = $16,
+  soumu = $17,
+  buchou = $18,
+  hakkousha = $19,
+  article = $20
+ WHERE id = $21 AND fiscal_year = $22
+ RETURNING *`,
       [
+        department || null,  // ← $1
         kouji_number,
         mitsumori_number,
         hatchuusha,

@@ -61,6 +61,7 @@ function getFormData() {
   const safeDate = (val) => !val || val.trim() === "" ? null : val;
 
   return {
+    department: $("#modalForm select[name='department']").val(),  // ← ★追加
     kouji_number: $("#modalForm input[name='kouji_number']").val(),
     mitsumori_number: $("#modalForm input[name='mitsumori_number']").val(),
     hatchuusha: $("#modalForm input[name='hatchuusha']").val(),
@@ -106,6 +107,14 @@ $(function () {
          if (!koujiNumber) {
          alert("工事番号が未記入です");
          return; // 保存処理を中断
+        }
+
+
+        // 大工番
+        const department = $("#department").val();
+        if (!department) {
+        alert("大工番が選択されていません");
+        return;
         }
  
 
@@ -320,6 +329,7 @@ $(function () {
   $("#openModal").on("click", function () {
     editingId = null;
     $("#modalForm input").val("");
+    $("#modalForm select[name='department']").val("選択必須");
     $(".approval-table select").val("");
     $("#modalForm").dialog("open");
 
@@ -402,6 +412,7 @@ if (order.missing === 1) {
 
      // ✅ sanitize()を適用（innerHTMLでも安全）
     tr.innerHTML = `
+      <td>${sanitize(order.department || "")}</td>   <!-- 🔥 追加 -->
       <td>${sanitize(koujiNumberCell)}</td>
       <td>${sanitize(order.kouji_supplier || "")}</td>
       <td>${sanitize(order.kouji_kenmei || "")}</td>
@@ -443,7 +454,7 @@ if (order.missing === 1) {
         if (!perf || Object.keys(perf).length === 0) return;
 
         const tds = tr.querySelectorAll("td");
-        let offset = 9;  // 10列目から実績表
+        let offset = 10;  // 10列目から実績表
          // textContent は自動でエスケープするので安全
         tds[offset].textContent  = perf.kouji_number || "";
         tds[offset+1].textContent  = perf.kaichou_up || "";
@@ -506,6 +517,7 @@ fetch(`/api/costs/${order.kouji_number}`)
 $('#searchInput').on('input', function () {
   const keyword = $(this).val().toLowerCase();
   const filtered = allOrders.filter(order =>
+    (order.department || '').toLowerCase().includes(keyword) ||  // 🔥 追加
     (order.kouji_number || '').toLowerCase().includes(keyword) ||
     (order.kouji_kenmei || '').toLowerCase().includes(keyword) ||
     (order.kouji_supplier || '').toLowerCase().includes(keyword) ||
@@ -520,8 +532,39 @@ $(document).ready(function () {
   loadOrders();
 });
 
+// ==============================
+// 統一フィルターイベント
+// ==============================
+$('#searchInput').on('input', applyFilters);
+$('#departmentFilter').on('change', applyFilters);
 
 
+
+// ==============================
+// 大工番で表示
+// ==============================
+function applyFilters() {
+  const keyword = $('#searchInput').val().toLowerCase();
+  const selectedDepartment = $('#departmentFilter').val();
+
+  const filtered = allOrders.filter(order => {
+
+    const matchesKeyword =
+      (order.department || '').toLowerCase().includes(keyword) ||
+      (order.kouji_number || '').toLowerCase().includes(keyword) ||
+      (order.kouji_kenmei || '').toLowerCase().includes(keyword) ||
+      (order.kouji_supplier || '').toLowerCase().includes(keyword) ||
+      (order.soumu_down || '').toLowerCase().includes(keyword) ||
+      (order.hakkousha_down || '').toLowerCase().includes(keyword);
+
+    const matchesDepartment =
+      !selectedDepartment || order.department === selectedDepartment;
+
+    return matchesKeyword && matchesDepartment;
+  });
+
+  renderOrderTable(filtered);
+}
 
 
   // 行をクリックしたらモーダルに値を反映して開く
@@ -529,7 +572,8 @@ function openOrderModal(order) {
   if (!order) return;
 
   console.log("工事命令書モーダルを開く:", order);
-
+   // ★ これを追加
+  $("#modalForm select[name='department']").val(order.department || "");
   $("#modalForm input[name='kouji_number']").val(order.kouji_number || "");
   $("#modalForm input[name='mitsumori_number']").val(order.mitsumori_number || "");
   $("#modalForm input[name='hatchuusha']").val(order.hatchuusha || "");
@@ -614,7 +658,7 @@ async function appendPerformanceDataToRow(tr, kouji_number) {
 
     // ⚠️ HTML のカラム構成に合わせてインデックスを調整
     // 例: 工事番号(0)～発行者(8) が工事命令書 → その右が実績表
-    let offset = 9;
+    let offset = 10;
 
     tds.eq(offset).text(perf.kouji_number || "");
     tds.eq(offset+1).text(perf.kaichou_up || "");
@@ -645,7 +689,8 @@ function createOrderRow(order) {
   if (order.missing === 1) {
     tr.addClass("canceled");
   }
-
+  // 🔹 大工番（追加）
+  tr.append(`<td>${order.department || ""}</td>`);
   // 工事命令書部分（1〜9列）
   tr.append(`<td>${order.kouji_number}</td>`);
   tr.append(`<td>${order.kouji_supplier || ""}</td>`);
@@ -666,7 +711,7 @@ function createOrderRow(order) {
   tr.find("td").on("click", function (e) {
     e.stopPropagation();
     const colIndex = $(this).index();
-    if (colIndex <= 8) {
+    if (colIndex <= 9) {
       openOrderModal(order);
     } else {
       openPerformanceModal(order.kouji_number);
@@ -706,7 +751,8 @@ function createOrderRow(order) {
   if (order.missing === 1) {
     tr.addClass("canceled");   // ← 欠番ならクラス追加
   }
-
+  // 🔥 ここを追加（最重要）
+  tr.append(`<td>${order.department || ""}</td>`);
   // 工事命令書 (1〜9列)
   tr.append(`<td>${order.kouji_number}</td>`);
   tr.append(`<td>${order.kouji_supplier}</td>`);
@@ -725,7 +771,7 @@ function createOrderRow(order) {
   tr.find("td").on("click", function (e) {
     e.stopPropagation();
     const colIndex = $(this).index();
-    if (colIndex <= 8) {
+    if (colIndex <= 9) {
       openOrderModal(order);
     } else {
       openPerformanceModal(order.kouji_number);
