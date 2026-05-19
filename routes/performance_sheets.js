@@ -6,6 +6,12 @@ import { checkFiscalOpen } from "../middlewares/checkFiscalOpen.js";
 
 const router = express.Router();
 
+router.use((req, res, next) => {
+  if (!req.session?.company_id) {
+    return res.status(403).json({ error: "company not set" });
+  }
+  next();
+});
 
 // ------------------------
 // 新規保存 (INSERT)
@@ -14,8 +20,9 @@ router.post(
   "/", 
   checkFiscalOpen, // 🔒 追加
   async (req, res) => {
+    const companyId = req.session.company_id;
 
-    console.log("POST /api/performance_sheets 実行", req.body.kouji_number);
+    //console.log("POST /api/performance_sheets 実行", req.body.kouji_number);
 
   try {
     let {
@@ -69,12 +76,13 @@ router.post(
         buchou_up, buchou_down,
         hakkousha_up, hakkousha_down,
         comments,
+        company_id,   -- ★追加
         ${columnList.join(", ")}
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
         $10, $11, $12, $13, $14, $15, $16,
-        $17, $18, $19, $20, $21, $22,
-        ${cellValues.map((_, idx) => `$${idx + 23}`).join(", ")}
+        $17, $18, $19, $20, $21, $22, $23,
+        ${cellValues.map((_, idx) => `$${idx + 24}`).join(", ")}
       )`,
       [
         kouji_number,
@@ -92,7 +100,7 @@ router.post(
         soumu_up, soumu_down,
         buchou_up, buchou_down,
         hakkousha_up, hakkousha_down,
-        comments,
+        comments, companyId,
         ...cellValues
       ]
     );
@@ -111,13 +119,13 @@ router.post(
 // ------------------------
 // 上書き保存 (UPDATE)
 // ------------------------
-// 上書き保存 (UPDATE)
 router.put(
   "/:id", 
   checkFiscalOpen, // 🔒 追加
   async (req, res) => {
   const { id } = req.params;
-  console.log("PUT /api/performance_sheets 実行 id", id);
+  const companyId = req.session.company_id;
+  //console.log("PUT /api/performance_sheets 実行 id", id);
 
   try {
     let {
@@ -175,7 +183,8 @@ router.put(
         hakkousha_up=$19, hakkousha_down=$20,
         comments=$21,
         ${columnList.join(", ")}
-      WHERE id=$${22 + cellValues.length}`,
+      WHERE id=$${22 + cellValues.length}
+      AND company_id=$${23 + cellValues.length}`,
       [
         kouji_supplier,
         kouji_kenmei,
@@ -190,7 +199,8 @@ router.put(
         hakkousha_up, hakkousha_down,
         comments,
         ...cellValues,
-        id   // ✅ id は最後
+        id,   // ✅ id は最後
+        companyId   // ★最後に追加
       ]
     );
 
@@ -207,50 +217,116 @@ router.put(
 
 // ------------------------
 // 個別取得（最新1件・全カラム）
-router.get("/:kouji_number", async (req, res) => {
-  
-  try {
-    const { kouji_number } = req.params;
-    const result = await pool.query(
-      `SELECT * FROM performance_sheets
-       WHERE kouji_number = $1
-       ORDER BY id DESC
-       LIMIT 1`,
-      [kouji_number]
-    );
-
-if (result.rows.length === 0) {
-      return res.json({});  // レコードがなければ空オブジェクト
-    }
-
-    // ✅ id も含めて返す
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error("GETエラー:", err);
-    res.status(500).json({ error: "DBエラー" });
-  }
-});
-
 // ------------------------
-// 全件リスト取得
+//router.get("/:kouji_number", async (req, res) => {
+//  try {
+//    const { kouji_number } = req.params;
+//    const companyId = req.session.company_id; // ★必須
+
+//    const result = await pool.query(
+//      `SELECT *
+//       FROM performance_sheets
+//       WHERE kouji_number = $1
+//         AND company_id = $2
+//       ORDER BY id DESC
+//       LIMIT 1`,
+//      [kouji_number, companyId]
+//    );
+
+//    if (result.rows.length === 0) {
+//      return res.json({});
+//    }
+
+//    res.json(result.rows[0]);
+//  } catch (err) {
+//    console.error("GETエラー:", err);
+//    res.status(500).json({ error: "DBエラー" });
+//  }
+//});
+
 // ------------------------
 // 全件リスト取得（工事番号 + 承認・発行12項目）
+// ------------------------
+//router.get("/", async (req, res) => {
+//  try {
+//    const companyId = req.session.company_id; // ★必須
+
+//    const result = await pool.query(
+//      `SELECT 
+//        kouji_number,
+//        kaichou_up, shachou_up, torishimari_up, soumu_up, buchou_up, hakkousha_up,
+//        kaichou_down, shachou_down, torishimari_down, soumu_down, buchou_down, hakkousha_down
+//       FROM performance_sheets
+//       WHERE company_id = $1
+//       ORDER BY id DESC`,
+//      [companyId]
+//    );
+
+//    res.json(result.rows);
+//  } catch (err) {
+//    console.error("一覧取得エラー:", err);
+//    res.status(500).json({ error: "DBエラー" });
+//  }
+//});
+
+// ------------------------
+// 全件リスト取得（軽量版）
+// ------------------------
 router.get("/", async (req, res) => {
   try {
+    const companyId = req.session.company_id;
+
     const result = await pool.query(
       `SELECT 
         kouji_number,
+        kouji_kenmei,
         kaichou_up, shachou_up, torishimari_up, soumu_up, buchou_up, hakkousha_up,
         kaichou_down, shachou_down, torishimari_down, soumu_down, buchou_down, hakkousha_down
        FROM performance_sheets
-       ORDER BY id DESC`
+       WHERE company_id = $1
+       ORDER BY id DESC`,
+      [companyId]
     );
+
     res.json(result.rows);
   } catch (err) {
     console.error("一覧取得エラー:", err);
     res.status(500).json({ error: "DBエラー" });
   }
 });
+
+
+// ------------------------
+// 詳細取得（モーダル用）
+// ------------------------
+router.get("/detail/:kouji_number", async (req, res) => {
+  try {
+    const { kouji_number } = req.params;
+    const companyId = req.session.company_id;
+
+    const result = await pool.query(
+      `SELECT *
+       FROM performance_sheets
+       WHERE kouji_number = $1
+         AND company_id = $2
+       ORDER BY id DESC
+       LIMIT 1`,
+      [kouji_number, companyId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.json({});
+    }
+
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    console.error("詳細取得エラー:", err);
+    res.status(500).json({ error: "DBエラー" });
+  }
+});
+
+
 
 
 

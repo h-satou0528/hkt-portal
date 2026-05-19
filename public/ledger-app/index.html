@@ -10,10 +10,46 @@
 
 <h1 class="title">工事台帳</h1>
 
-<div class="modal-buttons" style="display:flex;align-items:center;gap:60px;">
+<!-- <div class="modal-buttons" style="display:flex;align-items:center;gap:60px;"> -->
+  <div class="app-wrapper"></div>
 <div class="page-container">
 
 <header>
+  <select id="departmentFilter">
+  <option value="">大工番で表示</option>
+  <option>000_一般</option>
+  <option>200_京急</option>
+  <option>400_電中研関係</option>
+  <option>450_常石三保造船関係</option>
+  <option>500_JMU関係</option>
+  <option>600_正興電機製作所</option>
+  <option>650_JSW関係</option>
+  <option>700_住友関係</option>
+  <option>900_官庁関係</option>
+  <option>2000_艦テ関係</option>
+  <option>2050_テラテック関係</option>
+  <option>2100_日立製作所関係</option>
+  <option>2200_造船関係</option>
+  <option>2250_常石三保応援</option>
+  <option>2300_三波工業関係</option>
+  <option>2500_艦横工団関係</option>
+  <option>2550_工業団地一般</option>
+  <option>2600_CO2関係</option>
+  <option>2800_造船関係一般</option>
+  <option>2900_ME他造船関係</option>
+  <option>3001_函館どつく</option>
+  <option>3051_函館どつく(外注)</option>
+  <option>3101_メーカー支援</option>
+  <option>3201_その他</option>
+  <option></option>
+  <option>三久電設001_電中研</option>
+  <option>三久電設101_テクノ</option>
+  <option>三久電設201_官庁</option>
+  <option>三久電設501_一般</option>
+  <option>三久電設601_京急</option>
+  <option>三久電設701_北斗</option>
+</select>
+
 <button id="openFormBtn">工事台帳登録フォーム</button>
 
 <label>並び替え：
@@ -74,17 +110,16 @@
 </thead>
 <tbody></tbody>
 </table>
-
 </div>
 </main>
 </div>
 </div>
 
 <!-- modal -->
-<div id="modal" class="hidden modal-overlay">
+<div id="orderModal" class="hidden modal-overlay">
 <div class="modal-content">
 
-<h2 class="modal-title">工事台帳登録フォーム</h2>
+<h2 class="modal-title drag-handle">工事台帳登録フォーム</h2>
 
 <form id="orderForm" class="form-grid">
 <input type="hidden" id="id">
@@ -93,29 +128,36 @@
 <select name="department" id="department">
           <option>選択必須</option>
           <option>000_一般</option>
-          <option>200_京急</option>
-          <option>400_電中研関係</option>
-          <option>450_常石三保造船関係</option>
-          <option>500_JMU関係</option>
-          <option>600_正興電機製作所</option>
-          <option>650_JSW関係</option>
-          <option>700_住友関係</option>
-          <option>900_官庁関係</option>
-          <option>2000_艦テ関係</option>
-          <option>2100_日立製作所関係</option>
-          <option>2200_造船新潟関係</option>
-          <option>2300_三波工業関係</option>
-          <option>2500_艦横工団関係</option>
-          <option>2600_CO2関係</option>
-          <option>2800_造船一般</option>
-          <option>2900_ME他造船関係</option>
-          <option>3001_函館</option>
-          <option>三久電設001_電中研</option>
-          <option>三久電設101_テクノ</option>
-          <option>三久電設201_官庁</option>
-          <option>三久電設501_一般</option>
-          <option>三久電設601_京急</option>
-          <option>三久電設701_北斗</option>
+  <option>200_京急</option>
+  <option>400_電中研関係</option>
+  <option>450_常石三保造船関係</option>
+  <option>500_JMU関係</option>
+  <option>600_正興電機製作所</option>
+  <option>650_JSW関係</option>
+  <option>700_住友関係</option>
+  <option>900_官庁関係</option>
+  <option>2000_艦テ関係</option>
+  <option>2050_テラテック関係</option>
+  <option>2100_日立製作所関係</option>
+  <option>2200_造船関係</option>
+  <option>2250_常石三保応援</option>
+  <option>2300_三波工業関係</option>
+  <option>2500_艦横工団関係</option>
+  <option>2550_工業団地一般</option>
+  <option>2600_CO2関係</option>
+  <option>2800_造船関係一般</option>
+  <option>2900_ME他造船関係</option>
+  <option>3001_函館どつく</option>
+  <option>3051_函館どつく(外注)</option>
+  <option>3101_メーカー支援</option>
+  <option>3201_その他</option>
+  <option></option>
+  <option>三久電設001_電中研</option>
+  <option>三久電設101_テクノ</option>
+  <option>三久電設201_官庁</option>
+  <option>三久電設501_一般</option>
+  <option>三久電設601_京急</option>
+  <option>三久電設701_北斗</option>
         </select>
       </label>
 
@@ -129,7 +171,7 @@
 <label>船番<input id="shipnumber"></label>
 <label>技課<input id="tec_dep"></label>
 <label>担当<input id="incharge"></label>
-<label>完了日<input id="comp_date1"></label>
+<label>完予日<input id="comp_date1"></label>
 <label>注<input id="note"></label>
 <label>予定金額<input id="p_amount"></label>
 <label>交通費他<input id="transport_ex"></label>
@@ -142,7 +184,14 @@
 <label>請求金額<input id="bill_amount"></label>
 <label>入金合計<input id="deposit_total"></label>
 <label>手形振込<input id="bill_transfer"></label>
-<label>銀行名<input id="bank_name"></label>
+<label>銀行名
+  <select id="bank_name">
+    <option value=""></option>
+    <option value="横浜銀行">横浜銀行</option>
+    <option value="神奈川銀行">神奈川銀行</option>
+    <option value="三菱UFJ銀行">三菱UFJ銀行</option>
+  </select>
+</label>
 <label>相殺等<input id="offset_amount"></label>
 <label>振込金額<input id="transfer_amount"></label>
 <label>入金日<input id="depo_date1"></label>

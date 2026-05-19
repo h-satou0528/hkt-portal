@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Campany-Admin Portal</title> 
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+<meta name="description" content="">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Google Fonts: Noto Sans JP -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+
+
+  <meta name="theme-color" content="#fafafa">
+
+
+  <style>
+    /* タイトルを中央に配置 */
+    .header {
+        text-align: center;
+        font-size: 100px;
+        font-weight: bold;
+    }
+
+    /* 時計を右端に配置 */
+    #clock {
+        font-size: 35px;
+        font-weight: bold;
+        color: rgb(217, 255, 0);
+        position: absolute;
+        top: 30px;
+        right: 20px;
+    }
+
+    
+</style>
+
+
+
+
+
+
+</head>
+<body>
+
+<header class="header">
+  <div class="title-row">
+  <div id="companyName" class="company-name"></div>
+  <h1>会社管理ダッシュボード</h1></div>
+  <p>Company Admin Panel</p>
+</header>
+
+<main class="container">
+
+  <div class="card-grid">
+
+    <a class="card" href="/company-admin-app/users.html">
+      <h2>👤 ユーザー管理</h2>
+      <p>ユーザーの追加・編集・削除</p>
+    </a>
+
+    <a class="card" href="/company-admin-app/fiscal.html">
+      <h2>📅 年度管理</h2>
+      <p>年度切替・締め処理</p>
+    </a>
+
+  </div>
+
+</main>
+
+<!---<footer class="footer">
+  Company Admin System
+</footer> -->
+
+
+<!--- <script src="/common/js/utils.js"></script> --->
+<!-- OK -->
+<script src="/common/js/utils.js"></script>
+<script type="module" src="/company-admin-app/js/index.js"></script>
+</body>
+</html>

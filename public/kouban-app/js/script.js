@@ -33,7 +33,7 @@ function convertToWareki(year) {
 async function saveEntry() {
   const selectedYear = parseInt(document.getElementById("yearSelect").value, 10);
   const era = convertToWareki(selectedYear); // ← ここでeraを取得
-  const eraCode = era.code; // ← ここでeraCodeに取得！
+  const eraCode = era.code; // ← ここでeraCodeに取得
 
   const selectedBandai = document.querySelector('input[name="bandai"]:checked');
   if (!selectedBandai) {
@@ -238,7 +238,7 @@ const oldBandai = document.getElementById('editBandai').dataset.oldValue;
   return res.json();
 })
 .then(data => {
-  alert('更新が完了しました');
+  alert('上書きが完了しました');
   loadEntries();
   closeEditModal();
 })
@@ -257,20 +257,31 @@ async function searchEntry() {
 }
 
 // 初期化
-window.onload = () => {
+window.addEventListener("DOMContentLoaded", () => {
+
+  // 一覧ロード（これは常に実行）
   loadEntries();
 
-  document.getElementById("yearSelect").addEventListener("change", (e) => {
-    const year = parseInt(e.target.value, 10);
-    const era = convertToWareki(year);
-    document.getElementById("eraLabel").textContent = era.label;
-  });
+  // 🔥 yearSelectがある場合のみ処理
+  const yearSelect = document.getElementById("yearSelect");
+  const eraLabel = document.getElementById("eraLabel");
 
-  // 初期表示
-  const initYear = parseInt(document.getElementById("yearSelect").value, 10);
-  const era = convertToWareki(initYear);
-  document.getElementById("eraLabel").textContent = era.label;
-};
+  if (yearSelect && eraLabel) {
+
+    // 変更時
+    yearSelect.addEventListener("change", (e) => {
+      const year = parseInt(e.target.value, 10);
+      const era = convertToWareki(year);
+      eraLabel.textContent = era.label;
+    });
+
+    // 初期表示
+    const initYear = parseInt(yearSelect.value, 10);
+    const era = convertToWareki(initYear);
+    eraLabel.textContent = era.label;
+  }
+
+});
 
 
 
@@ -430,23 +441,24 @@ function outModal() {
 function showBandaiList() {
   const selectedBandai = document.querySelector('input[name="bandai"]:checked')?.value;
   if (!selectedBandai) {
-    alert("番台を選択してください。");
+    alert("表示させたい番台を選択してください。");
     return;
   }
 
-  // 例: "2001-2049" → ["2001", "2049"]
+  //08-とか廃止 例: "2001-2049" → ["2001", "2049"]
   const [from, to] = selectedBandai.split("-");
-  const warekiCode = "08-";
+  //const warekiCode = "08-";
 
   // 正しくエンコードされたURLを生成
   const params = new URLSearchParams({
-    prefix: warekiCode,
-    from: from,
-    to: to
-  });
+  from: from,
+  to: to
+});
 
   // paramsを使ってfetch送信
-  fetch(`/getBandaiList?${params.toString()}`)
+  fetch(`/getBandaiList?${params.toString()}`, {
+  credentials: "include"
+})
     .then(response => {
     console.log("HTTP status:", response.status);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -664,27 +676,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //CSPエラー回避
 document.addEventListener("DOMContentLoaded", () => {
   // 全ての「工事番号登録」ボタンを取得
@@ -756,6 +747,12 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.removeAttribute("onclick");
     btn.addEventListener("click", closeBandaiModal);
   });
+
+  // 🔥 削除ボタン
+const deleteBtn = document.querySelector("#deleteBtn");
+if (deleteBtn) {
+  deleteBtn.addEventListener("click", deleteEntry);
+}
 });
 
 
@@ -796,3 +793,49 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", closeBandaiModal);
   });
 });
+
+//リストから削除
+async function deleteEntry() {
+
+  const bandai = document.getElementById("editBandai").dataset.oldValue;
+
+  if (!bandai) {
+    alert("削除対象が不明です");
+    return;
+  }
+
+  if (!confirm(`本当に削除しますか？　削除すると復旧できません。\n${bandai}`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/orderdata/delete-entry', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': getCsrfToken()
+      },
+      credentials: 'include',
+      body: JSON.stringify({ bandai })
+    });
+
+    if (res.status === 403) {
+      const err = await res.json();
+      alert(err.error);
+      return;
+    }
+
+    if (!res.ok) {
+      throw new Error("delete failed");
+    }
+
+    alert("削除しました");
+
+    closeEditModal();
+    loadEntries();
+
+  } catch (err) {
+    console.error("削除エラー:", err);
+    alert("削除に失敗しました");
+  }
+}

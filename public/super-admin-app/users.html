@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ユーザー管理</title>
+<link rel="stylesheet" href="/super-admin-app/css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <!-- <h1>ユーザー管理</h1> -->
+  <p>SaaS 全社ユーザー管理</p>
+  <div class="company-switch">
+    <!--🏢 操作対象会社：
+    <select id="companySelect"></select>-->
+    hkt-portalの全ユーザーを追加・削除など
+  </div>
+</header>
+
+<main class="container">
+
+  
+
+  <!-- ユーザー追加 -->
+  <section class="card">
+    <h2>ユーザー追加 / 編集</h2>
+
+    <input id="userName" placeholder="ユーザー名">
+    
+    <input id="userPassword" type="password" placeholder="パスワード">
+
+    <select id="userCompany">
+      <option value="">会社を選択</option>
+    </select>
+
+    <select id="userRole">
+      <option value="user">一般</option>
+      <option value="admin">管理者</option>
+    </select>
+
+    <button id="addUpdateUserBtn">追加</button>
+    <button id="cancelEditUserBtn" style="display:none;">キャンセル</button>
+  </section>
+
+  <!-- フィルタ -->
+  <section class="card">
+    <h3>会社フィルタ</h3>
+    <select id="companyFilter">
+      <option value="">全て</option>
+    </select>
+  </section>
+
+  <!-- 一覧 -->
+  <section class="card">
+    <h2>ユーザー一覧</h2>
+
+    <table id="userTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>名前</th>
+          <th>会社</th>
+          <th>権限</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+</main>
+
+<div class="card-grid">
+  <a class="back-link" href="/super-admin-app/index.html">
+    <h2>← ダッシュボードに戻る</h2>
+    <p>Super Admin Portal</p>
+  </a>
+
+</div>
+<footer class="footer">
+SaaS Super Admin System
+</footer>
+
+<script type="module" src="/super-admin-app/js/users.js"></script>
+
+</body>
+</html>

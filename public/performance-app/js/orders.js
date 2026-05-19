@@ -21,37 +21,75 @@ function parseNumberSimple(val) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 金額入力欄のフォーマット・自動計算
-  const mitsumoriTaxEx = document.getElementById("mitsumori_taxex");
-  const contractTaxEx = document.getElementById("contract_taxex");
 
-  if (mitsumoriTaxEx) {
-    mitsumoriTaxEx.addEventListener("input", formatAndCalculate);
-  }
-  if (contractTaxEx) {
-    contractTaxEx.addEventListener("input", formatAndCalculate);
-  }
+  const amountInputs = [
+    document.getElementById("mitsumori_taxex"),
+    document.getElementById("contract_taxex")
+  ];
+
+  amountInputs.forEach(input => {
+
+    if (!input) return;
+
+    // IME OFF
+    input.setAttribute("inputmode", "numeric");
+    input.style.imeMode = "disabled";
+
+    // フォーカス時 → カンマ除去
+    input.addEventListener("focus", () => {
+      input.value = parseNumberSimple(input.value) || "";
+    });
+
+    // 入力中
+    input.addEventListener("input", () => {
+
+      // 数字以外除去
+      let raw = input.value.replace(/[^\d]/g, "");
+
+      // 先頭ゼロ除去
+      raw = raw.replace(/^0+(?=\d)/, "");
+
+      input.value = raw;
+
+      formatAndCalculate();
+    });
+
+    // フォーカス外れたらカンマ
+    input.addEventListener("blur", () => {
+
+      const num = parseNumberSimple(input.value);
+
+      input.value = num
+        ? formatWithCommaSimple(num)
+        : "";
+
+      formatAndCalculate();
+    });
+  });
 });
 
 
 
 
 function formatAndCalculate() {
+
   const mitInput = document.getElementById('mitsumori_taxex');
   const conInput = document.getElementById('contract_taxex');
+
   if (!mitInput || !conInput) return;
 
   const mitRaw = parseNumberSimple(mitInput.value);
   const conRaw = parseNumberSimple(conInput.value);
 
-  mitInput.value = formatWithCommaSimple(mitRaw);
-  conInput.value = formatWithCommaSimple(conRaw);
-
+  // 税込だけ計算
   const mitTaxIn = Math.round(mitRaw * 1.1);
   const conTaxIn = Math.round(conRaw * 1.1);
 
-  document.getElementById('mitsumori_taxin').textContent = formatWithCommaSimple(mitTaxIn);
-  document.getElementById('contract_taxin').textContent = formatWithCommaSimple(conTaxIn);
+  document.getElementById('mitsumori_taxin').textContent =
+    formatWithCommaSimple(mitTaxIn);
+
+  document.getElementById('contract_taxin').textContent =
+    formatWithCommaSimple(conTaxIn);
 }
 
 let editingId = null;
@@ -80,13 +118,23 @@ function getFormData() {
     soumu: $("#modalForm .approval-table tr:eq(1) td:eq(3) select").val(),
     buchou: $("#modalForm .approval-table tr:eq(1) td:eq(4) select").val(),
     hakkousha: $("#modalForm .approval-table tr:eq(1) td:eq(5) select").val(),
-    article: $("#article").val()
+    article: $("#article").val(),
+
+  reflectPerformance: $("#reflectPerformance").prop("checked"),
+  reflectEntries: $("#reflectEntries").prop("checked"),
+  // 🔥 これ追加
+    reflectLedger: $("#reflectLedger").prop("checked")
+
   };
+}
+
+function isBranchNumber(koujiNumber) {
+  return koujiNumber.split("-").length > 2;
 }
 
 
 // ==============================
-// モーダル・登録処理
+// モーダル・登録処理（完全版）
 // ==============================
 $(function () {
   $(".datepicker").datepicker({ dateFormat: 'yy-mm-dd' });
@@ -96,234 +144,330 @@ $(function () {
     modal: true,
     width: 600,
     buttons: [
+
+      // ==========================
+      // 新規登録
+      // ==========================
       {
         text: "登録する",
         class: "register-button",
-        click: function () {
-
-         // 工事番号を取得
-         const koujiNumber = $("#kouji_number").val().trim();
-
-         if (!koujiNumber) {
-         alert("工事番号が未記入です");
-         return; // 保存処理を中断
-        }
-
-
-        // 大工番
-        const department = $("#department").val();
-        if (!department) {
-        alert("大工番が選択されていません");
-        return;
-        }
- 
+        click: async function () {
 
           const formData = getFormData();
+          const koujiNumber = formData.kouji_number?.trim();
+
+          if (!koujiNumber) {
+            alert("工事番号が未記入です");
+            return;
+          }
+
+          const isPerformance = formData.reflectPerformance;
+          const isEntry = formData.reflectEntries;
+          const isBranch = isBranchNumber(koujiNumber);
+
+          if (isBranch && isPerformance) {
+            alert("枝番号のため実行予算・実績表及び台帳には作成や反映できません");
+            return;
+          }
+
+          if (isBranch && isEntry && !isPerformance) {
+            const ok = confirm("内川工事番号登録に反映させますか？");
+            if (!ok) return;
+
+            await saveToEntriesOnly(formData);
+            alert("工事番号を登録しました（内川 + 工事命令書）");
+          }
+
+          if (!formData.department) {
+            alert("大工番が選択されていません");
+            return;
+          }
+
           $.ajax({
             url: "/api/construction_orders",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(formData),
-              headers: { 'X-CSRF-Token': getCsrfToken() }, // ← これを追加！
+            headers: { 'X-CSRF-Token': getCsrfToken() },
+
             success: function () {
               alert("登録しました！");
               $("#modalForm").dialog("close");
               loadOrders();
             },
-            error: function (xhr) {
-  if (xhr.status === 403) {
-    alert(xhr.responseJSON?.error);
-    return;
-  }
-  alert("登録に失敗しました");
-}
 
+            error: function (xhr) {
+              if (xhr.status === 403) {
+                alert(xhr.responseJSON?.error);
+                return;
+              }
+
+              if (xhr.status === 400) {
+                alert(xhr.responseJSON?.error || "この工事番号は既に登録されています");
+                return;
+              }
+
+              alert("登録に失敗しました");
+            }
           });
         }
       },
-       {
-      text: "閉じる",              // ← 追加
-      class: "close-button",       // 必要ならCSSで装飾
-      click: function () {
-        $(this).dialog("close");
-      }
-    },{
-  text: "上書き保存",
-  class: "update-button",
-  click: function () {
-    const formData = getFormData();
 
-    // 🔽 kouji_number が空なら補完
-    if (!formData.kouji_number) {
-      const targetOrder = allOrders.find(o => o.id === editingId);
-      if (targetOrder) {
-        formData.kouji_number = targetOrder.kouji_number;
-      }
-    }
-
-    console.log("送信するformData:", formData);
-
-    if (!editingId) {
-      alert("編集対象が見つかりません");
-      return;
-    }
-
-    $.ajax({
-      url: `/api/construction_orders/${editingId}`,
-      type: "PUT",
-      contentType: "application/json",
-      data: JSON.stringify(formData),
-      headers: { 'X-CSRF-Token': getCsrfToken() },
-
-      success: function () {
-        alert("更新しました！");
-        $("#modalForm").dialog("close");
-        loadOrders();
-        editingId = null;
+      // ==========================
+      // 閉じる
+      // ==========================
+      {
+        text: "閉じる",
+        click: function () {
+          $(this).dialog("close");
+        }
       },
 
-      error: function (xhr) {
-        // 🔒 締め年度（ここが核心）
-        if (xhr.status === 403) {
-          alert(xhr.responseJSON?.error);
-          return;
-        }
-        alert("更新に失敗しました");
-        console.error(xhr);
-      }
-    });
-  }
-},
-
-
-
+      // ==========================
+      // 上書き保存（修正版）
+      // ==========================
       {
-  text: "工事完了",
-  class: "complete-button",
-  click: function () {
-    if (!editingId) {
-      alert("編集対象が見つかりません");
-      return;
-    }
-    if (confirm("この工事を完了にしますか？")) {
-      $.ajax({
-        url: `/api/construction_orders/${editingId}/completed`,
-        type: "PUT",
-        headers: { 'X-CSRF-Token': getCsrfToken() },  // ← 🔥 CSRFトークンを追加！
-        success: function () {
-          alert("工事を完了にしました！");
-          $("#modalForm").dialog("close");
-          loadOrders();   // リストを再読み込み
-        },
-        error: function (xhr) {
-    if (xhr.status === 403) {
-          alert(xhr.responseJSON?.error);
-    return; }
-          alert("工事完了の更新に失敗しました");
-        }
-      });
-    }
-  }
-},
-
- // 👇 工事完了を取り消す（完了フラグ = 1 のときだけ表示）
-      {
-        text: "工事完了取消し",
-        class: "uncomplete-button",
+        text: "上書き保存",
+        class: "update-button",
         click: function () {
+
+          const formData = getFormData();
+
+          if (!formData.kouji_number) {
+            const targetOrder = allOrders.find(o => o.id === editingId);
+            if (targetOrder) {
+              formData.kouji_number = targetOrder.kouji_number;
+            }
+          }
+
+          const koujiNumber = formData.kouji_number?.trim();
+
+          if (!koujiNumber) {
+            alert("工事番号が未設定です");
+            return;
+          }
+
+          const isPerformance = formData.reflectPerformance;
+          const isEntry = formData.reflectEntries;
+          const isBranch = isBranchNumber(koujiNumber);
+
+          if (isBranch && isPerformance) {
+            alert("枝番号のため実行予算・実績表及び工事台帳には反映はできません");
+            return;
+          }
+
+          if (isBranch && isEntry && !isPerformance) {
+            const ok = confirm("内川工事番号登録に反映させますか？");
+            if (!ok) return;
+          }
+
           if (!editingId) {
             alert("編集対象が見つかりません");
             return;
           }
-          if (confirm("この工事の完了を取り消しますか？")) {
+
+          $.ajax({
+            url: `/api/construction_orders/${editingId}`,
+            type: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            headers: { 'X-CSRF-Token': getCsrfToken() },
+
+            success: function () {
+              alert("更新しました！");
+              $("#modalForm").dialog("close");
+              loadOrders();
+              editingId = null;
+            },
+
+            error: function (xhr) {
+              if (xhr.status === 403) {
+                alert(xhr.responseJSON?.error);
+                return;
+              }
+              alert("更新に失敗しました");
+            }
+          });
+        }
+      },
+
+      // ==========================
+      // 工事完了
+      // ==========================
+      {
+        text: "工事完了",
+        click: function () {
+          if (!editingId) return alert("編集対象が見つかりません");
+
+          if (confirm("この工事を完了にしますか？")) {
+            $.ajax({
+              url: `/api/construction_orders/${editingId}/completed`,
+              type: "PUT",
+              headers: { 'X-CSRF-Token': getCsrfToken() },
+              success: function () {
+                alert("完了しました");
+                $("#modalForm").dialog("close");
+                loadOrders();
+              }
+            });
+          }
+        }
+      },
+
+      // ==========================
+      // 完了取消
+      // ==========================
+      {
+        text: "工事完了取消し",
+        click: function () {
+          if (!editingId) return alert("編集対象が見つかりません");
+
+          if (confirm("完了を取り消しますか？")) {
             $.ajax({
               url: `/api/construction_orders/${editingId}/uncomplete`,
               type: "PUT",
-              headers: { 'X-CSRF-Token': getCsrfToken() },  // ← 🔥 CSRFトークンを追加！
+              headers: { 'X-CSRF-Token': getCsrfToken() },
               success: function () {
-                alert("工事完了を取り消しました！");
+                alert("取消しました");
                 $("#modalForm").dialog("close");
                 loadOrders();
-              },
-              error: function (xhr) {
-  if (xhr.status === 403) {
-    alert(xhr.responseJSON?.error);
-    return;
-  }
-                alert("工事完了の取り消しに失敗しました");
               }
             });
           }
         }
       },
 
-
-
-
+      // ==========================
+      // 欠番
+      // ==========================
       {
         text: "欠番にする",
-        class: "cancel-button",
         click: function () {
-          if (!editingId) {
-            alert("編集対象が見つかりません");
-            return;
-          }
-          if (confirm("本当に欠番にしますか？")) {
+          if (!editingId) return alert("編集対象が見つかりません");
+
+          if (confirm("欠番にしますか？")) {
             $.ajax({
               url: `/api/construction_orders/${editingId}/missing`,
               type: "PUT",
-              headers: { 'X-CSRF-Token': getCsrfToken() },  // ← 🔥 CSRFトークンを追加！
-              success: function (data) {
-  console.log("欠番成功:", data);
-  $("#modalForm").dialog("close");
-  loadOrders();  // ← ここでリスト再読み込み
-  editingId = null;
-},
-              error: function (xhr) {
-  if (xhr.status === 403) {
-    alert(xhr.responseJSON?.error);
-    return;
-  }
-                alert("欠番に失敗しました");
+              headers: { 'X-CSRF-Token': getCsrfToken() },
+              success: function () {
+                alert("欠番にしました");
+                $("#modalForm").dialog("close");
+                loadOrders();
               }
             });
           }
         }
       },
 
+      // ==========================
+      // 欠番取消
+      // ==========================
       {
-  text: "欠番取消",
-  class: "uncancel-button",
-  click: function () {
-    if (!editingId) {
-      alert("編集対象が見つかりません");
-      return;
-    }
-    if (confirm("欠番を取り消しますか？")) {
-      $.ajax({
-        url: `/api/construction_orders/${editingId}/unmissing`,
-        type: "PUT",
-        headers: { 'X-CSRF-Token': getCsrfToken() },  // ← 🔥 CSRFトークンを追加！
-        success: function (data) {
-          console.log("欠番取消成功:", data);
-          $("#modalForm").dialog("close");
-          loadOrders();
-          editingId = null;
-        },
-        error: function (xhr) {
-  if (xhr.status === 403) {
-    alert(xhr.responseJSON?.error);
+        text: "欠番取消",
+        click: function () {
+          if (!editingId) return alert("編集対象が見つかりません");
+
+          if (confirm("欠番を取り消しますか？")) {
+            $.ajax({
+              url: `/api/construction_orders/${editingId}/unmissing`,
+              type: "PUT",
+              headers: { 'X-CSRF-Token': getCsrfToken() },
+              success: function () {
+                alert("取消しました");
+                $("#modalForm").dialog("close");
+                loadOrders();
+              }
+            });
+          }
+        }
+      }
+
+    ]
+  });
+});
+
+// ==============================
+  // 🔥 工事番号リアルタイム重複チェック（ここが正解位置）
+  // ==============================
+$(document).ready(function () {
+
+  function debounce(fn, ms) {
+    let timer;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), ms);
+    };
+  }
+
+  const checkKoujiNumber = debounce(async function () {
+    const koujiNumber = $("#kouji_number").val()?.trim();
+    // 🔥 ここに入れる（最優先）
+    if (!koujiNumber) {
+        $("#kouji_number").css("background-color", "");
+        $("#koujiNumberMsg").text("");
     return;
   }
-          alert("欠番取消に失敗しました");
-        }
-      });
-    }
-  }
-},
 
-  ]
+    // 工事番号の08-とかは無視してその下をチェックする(現在2なので2文字目から)
+    if (koujiNumber.length < 2) return;
+    
+    try {
+      const res = await fetch(`/api/construction_orders/check/${koujiNumber}`);
+      const data = await res.json();
+
+      if (data.exists) {
+        $("#kouji_number").css("background-color", "#ffcccc");
+        $("#koujiNumberMsg")
+          .text("⚠ この工事番号は既に登録されています")
+          .css("color", "red");
+
+      } else {
+        $("#kouji_number").css("background-color", "#ccffcc");
+        $("#koujiNumberMsg")
+          .text("✓ 使用できます")
+          .css("color", "green");
+      }
+
+    } catch (err) {
+      console.error("重複チェック失敗", err);
+    }
+  }, 500);
+
+  // ⭐ イベント登録
+  $("#kouji_number").on("input", checkKoujiNumber);
+
 });
+
+
+
+///////////////////////////////////
+//saveToEntriesOnly の追加
+///////////////////////////////////
+async function saveToEntriesOnly(formData) {
+  const res = await fetch('/api/save-entry', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': getCsrfToken()
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      bandai: formData.kouji_number,
+      title: formData.kouji_kenmei,
+      person: "", // 必要なら追加
+      note: "",
+      order: "",
+      invoice: "",
+      performance: ""
+    })
+  });
+
+  if (!res.ok) {
+    throw new Error("entries登録失敗");
+  }
+}
+
 
   // 新規登録モーダルを開く
   $("#openModal").on("click", function () {
@@ -342,7 +486,7 @@ $(function () {
       $(".ui-dialog-buttonpane button:contains('欠番取消')").hide();       // 新規なので非表示
     }, 10);
   });
-});
+
 
 
 
@@ -354,37 +498,24 @@ let allOrders = [];
 async function loadOrders() {
   console.log("loadOrders 実行開始");
 
+  const loader = document.getElementById("loadingOverlay");
+  loader.classList.remove("hidden");   // ← 表示ON
+
   try {
     const response = await fetch("/api/construction_orders");
     const data = await response.json();
-    console.log("GET /api/construction_orders 成功", data.length, "件");
 
-    // 実績表をマージ
-    for (let order of data) {
-      try {
-        const perfRes = await fetch(`/api/performance_sheets/${order.kouji_number}`);
-        const perf = await perfRes.json();
-        if (perf && Object.keys(perf).length > 0) {
-          // 必要な列を order に追加
-          order.soumu_down = perf.soumu_down || "";
-          order.hakkousha_down = perf.hakkousha_down || "";
-          // 必要なら他の列も追加可能
-          // order.kaichou_up = perf.kaichou_up || "";
-          // order.buchou_down = perf.buchou_down || "";
-        }
-      } catch (err) {
-        console.warn(`実績表取得失敗: ${order.kouji_number}`, err);
-      }
-    }
+    console.log("GET /api/construction_orders 成功", data.length, "件");
 
     allOrders = data;
     renderOrderTable(allOrders);
 
   } catch (err) {
     console.error("GET /api/construction_orders エラー:", err);
+  } finally {
+    loader.classList.add("hidden");   // ← 表示OFF（必ず実行🔥）
   }
 }
-
 
 function renderOrderTable(orders) {
   const tbody = document.querySelector("#orderList tbody");
@@ -397,22 +528,20 @@ function renderOrderTable(orders) {
       tr.classList.add("canceled");
     }
 
-
     if (order.completed === 1) {
-    tr.classList.add("completed");   // ← 完了の背景追加
-  }
+      tr.classList.add("completed");
+    }
 
-    // 工事命令書 9列
     let koujiNumberCell = order.kouji_number;
-if (order.missing === 1) {
-  koujiNumberCell += "（欠番）";   // ← 欠番なら文字を追加
-}
+    if (order.missing === 1) {
+      koujiNumberCell += "（欠番）";
+    }
 
-
-
-     // ✅ sanitize()を適用（innerHTMLでも安全）
+    // ==============================
+    // 工事命令書（左側）
+    // ==============================
     tr.innerHTML = `
-      <td>${sanitize(order.department || "")}</td>   <!-- 🔥 追加 -->
+      <td>${sanitize(order.department || "")}</td>
       <td>${sanitize(koujiNumberCell)}</td>
       <td>${sanitize(order.kouji_supplier || "")}</td>
       <td>${sanitize(order.kouji_kenmei || "")}</td>
@@ -424,91 +553,85 @@ if (order.missing === 1) {
       <td>${sanitize(order.hatchuusha || "")}</td>
     `;
 
+    const tds = tr.querySelectorAll("td");
+
+    // ==============================
+    // 実績表（右側）🔥復活
+    // ==============================
+    let offset = 10;
+
+    const perfColumns = [
+   order.ps_kouji_number,
+  order.ps_kaichou_up,
+  order.ps_shachou_up,
+  order.ps_torishimari_up,
+  order.ps_soumu_up,
+  order.ps_buchou_up,
+  order.ps_hakkousha_up,
+  order.ps_kaichou_down,
+  order.ps_shachou_down,
+  order.ps_torishimari_down,
+  order.ps_soumu_down,
+  order.ps_buchou_down,
+  order.ps_hakkousha_down
+];
+
+    perfColumns.forEach(val => {
+      const td = document.createElement("td");
+      td.textContent = val || "";
+      tr.appendChild(td);
+    });
+
+    // ==============================
+    // ステータス色付け🔥復活
+    // ==============================
+    const statusCell = tr.querySelectorAll("td")[offset + 12];
+
+    if (order.ps_hakkousha_down === "差戻") {
+      statusCell.classList.add("status-sashimodoshi");
+    }
+
+    if (order.ps_hakkousha_down === "完了") {
+      statusCell.classList.add("status-kanryo");
+    }
     
+    
+    // ==============================
+    // コスト列🔥復活
+    // ==============================
+    const costCell = document.createElement("td");
 
-    // 実績表データを取得して埋める
-    appendPerformanceDataToRow($(tr), order.kouji_number);
+    if (order.cost_exists) {
+      costCell.textContent = "作成済";
+      costCell.classList.add("costs-link");
 
-    // クリック分岐
+      costCell.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openCostsModal(order.kouji_number);
+      });
+    }
+
+    tr.appendChild(costCell);
+
+    // ==============================
+    // クリック処理
+    // ==============================
     tr.addEventListener("click", (e) => {
       const clickedCell = e.target.closest("td");
       if (!clickedCell) return;
 
       const colIndex = Array.from(tr.children).indexOf(clickedCell);
-      if (colIndex < 9) {
+
+      if (colIndex < 10) {
         openOrderModal(order);
-      } else {
+      } else if (colIndex < 23) {
         openPerformanceModal(order.kouji_number);
       }
     });
 
     tbody.appendChild(tr);
-
-
-
-
-    // 実績表データを取得して埋める
-    fetch(`/api/performance_sheets/${order.kouji_number}`)
-      .then(r => r.json())
-      .then(perf => {
-        if (!perf || Object.keys(perf).length === 0) return;
-
-        const tds = tr.querySelectorAll("td");
-        let offset = 10;  // 10列目から実績表
-         // textContent は自動でエスケープするので安全
-        tds[offset].textContent  = perf.kouji_number || "";
-        tds[offset+1].textContent  = perf.kaichou_up || "";
-        tds[offset+2].textContent  = perf.shachou_up || "";
-        tds[offset+3].textContent  = perf.torishimari_up || "";
-        tds[offset+4].textContent  = perf.soumu_up || "";
-        tds[offset+5].textContent  = perf.buchou_up || "";
-        tds[offset+6].textContent  = perf.hakkousha_up || "";
-        tds[offset+7].textContent  = perf.kaichou_down || "";
-        tds[offset+8].textContent  = perf.shachou_down || "";
-        tds[offset+9].textContent  = perf.torishimari_down || "";
-        tds[offset+10].textContent = perf.soumu_down || "";
-        tds[offset+11].textContent = perf.buchou_down || "";
-        tds[offset+12].textContent = perf.hakkousha_down || "";
-
-    // 差戻/完了スタイル
-    // ✅ 差戻なら赤
-    if (perf.hakkousha_down === "差戻") {
-      tds[offset+12].classList.add("status-sashimodoshi");
-    }
-
-    // ✅ 完了なら緑
-    if (perf.hakkousha_down === "完了") {
-      tds[offset+12].classList.add("status-kanryo");
-    }
-
-
-      })
-      .catch(err => console.error("実績表取得失敗:", err));
-
-    // ✅ 材料費データを取得して「済み」表示
-fetch(`/api/costs/${order.kouji_number}`)
-  .then(r => r.json())
-  .then(cost => {
-    const tds = tr.querySelectorAll("td");
-    const costCell = document.createElement("td");
-
-    if (cost && cost.kouji_number) {
-      costCell.textContent = "作成済";
-      costCell.classList.add("costs-link"); // スタイル用クラス
-      costCell.addEventListener("click", (e) => {
-        e.stopPropagation(); // tr クリックとバッティングしないように
-        openCostsModal(order.kouji_number); // ← モーダルを開く関数を用意する
-      });
-    } else {
-      costCell.textContent = "";
-    }
-
-    tr.appendChild(costCell);
-  })
-  .catch(err => console.error("コストデータ取得失敗:", err));
   }
 }
-
 
 
 // ==============================
@@ -632,9 +755,6 @@ function openOrderModal(order) {
 }
 
 
-
-
-
 function formatDateForInput(isoDate) {
   if (!isoDate) return "";
   const date = new Date(isoDate);
@@ -642,41 +762,6 @@ function formatDateForInput(isoDate) {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   return `${yyyy}/${mm}/${dd}`;
-}
-
-
-// ==============================
-// 実績表データを行に追加する
-// ==============================
-async function appendPerformanceDataToRow(tr, kouji_number) {
-  try {
-    const res = await fetch(`/api/performance_sheets/${kouji_number}`);
-    if (!res.ok) return;
-
-    const perf = await res.json();
-    const tds = tr.find("td");
-
-    // ⚠️ HTML のカラム構成に合わせてインデックスを調整
-    // 例: 工事番号(0)～発行者(8) が工事命令書 → その右が実績表
-    let offset = 10;
-
-    tds.eq(offset).text(perf.kouji_number || "");
-    tds.eq(offset+1).text(perf.kaichou_up || "");
-    tds.eq(offset+2).text(perf.shachou_up || "");
-    tds.eq(offset+3).text(perf.torishimariyaku_up || "");
-    tds.eq(offset+4).text(perf.soumu_up || "");
-    tds.eq(offset+5).text(perf.buchou_up || "");
-    tds.eq(offset+6).text(perf.hakkousha_up || "");
-    tds.eq(offset+7).text(perf.kaichou_down || "");
-    tds.eq(offset+8).text(perf.shachou_down || "");
-    tds.eq(offset+9).text(perf.torishimariyaku_down || "");
-    tds.eq(offset+10).text(perf.soumu_down || "");
-    tds.eq(offset+11).text(perf.buchou_down || "");
-    tds.eq(offset+12).text(perf.hakkousha_down || "");
-
-  } catch (err) {
-    console.error("appendPerformanceDataToRow エラー:", err);
-  }
 }
 
 
@@ -814,3 +899,14 @@ $("#sortSelect").on("change", function () {
   renderOrderTable(sorted);
 });
 
+
+// ==============================
+// debounce（共通ユーティリティ）
+// ==============================
+function debounce(fn, ms) {
+  let t;
+  return function (...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), ms);
+  };
+}

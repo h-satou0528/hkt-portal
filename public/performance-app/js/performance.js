@@ -314,7 +314,7 @@ $(document).ready(function () {
 //リスト描画時に kouji_number を使って実績表を取得
 async function fetchPerformance(kouji_number) {
   try {
-    const res = await fetch(`/api/performance_sheets/${kouji_number}`);
+    const res = await fetch(`/api/performance_sheets/detail/${kouji_number}`);
     return await res.json();
   } catch (err) {
     console.error("fetchPerformance エラー:", err);
@@ -410,7 +410,7 @@ function openModal() {
     // その他個別セル
     "H7", "H9", "H16",
     "N7", "N9", "N16",
-    "C19", "E19", "G19", "J19", "L19", "M19",
+    "A19","C19", "E19", "G19", "J19", "L19", "M19",
   ]);
 
   // === スプレッドシートのセルをクリア（除外セルは残す）===
@@ -446,9 +446,10 @@ $("#openPerformanceBtn").on("click", function () {
 // === 実績表モーダルを開く処理 ===
 function openPerformanceModal(koujiNumber) {
   console.log("✅ openPerformanceModal 呼び出し:", koujiNumber);
+  
 
   // APIから実績表データを取得
-  $.get(`/api/performance_sheets/${koujiNumber}`, function (data) {
+  $.get(`/api/performance_sheets/detail/${koujiNumber}`, function (data) {
     console.log("✅ 実績表APIレス:", data);
 
     const modal = $("#perfModal");

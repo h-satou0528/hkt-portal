@@ -68,6 +68,7 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+    z-index: 9999;
 }
 
 /* モーダル本体 */
@@ -141,7 +142,7 @@ header {
 
 /* 部門のボックスの幅の広さ指定 */
 #department {
-  width: 150px; /* 好きな幅に変更できます */
+  width: 185px; /* 好きな幅に変更できます */
 }
 
 /* CD と C_select の横幅を広げる */
@@ -190,7 +191,7 @@ header, main {
 main {
   display: flex;
   justify-content: center; /* 横中央寄せ */
-  margin-top: 20px;
+  margin-top: 0px;
 }
 
 /* テーブル全体のスタイル調整（任意） */
@@ -226,7 +227,7 @@ header {
   display: flex;
   align-items: center;
   gap: 40px;  /* ボタン・ラベル間の間隔を広げる */
-  margin-bottom: 20px; /* header 下の余白 */
+  margin-bottom: 0px; /* header 下の余白 */
 }
 
 /* 検索ボックスの幅を広げる */
@@ -271,11 +272,13 @@ header {
     background: rgba(0,0,0,0.4);
   }
   .modal-content {
-    background: #fff;
-    margin: 5% auto;
-    padding: 20px;
-    border-radius: 8px;
-  }
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 320px;
+  position: absolute;
+  margin: 0; /* ← これが正解 */
+}
 
   /* 表デザイン */
   #summaryTableContainer table {
@@ -462,3 +465,97 @@ header {
 .span-4 {
   grid-column: span 4;
 }
+
+
+.modal-content {
+  position: absolute; /* 🔥 これ重要 */
+}
+
+
+.modal-title {
+  margin: 0;
+}
+
+.modal-overlay.dragging {
+  display: block !important;
+  justify-content: unset !important;
+  align-items: unset !important;
+}
+
+/* リストのカラムのレイアウト */
+.app-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+#orderTable {
+  width: max-content;
+  min-width: 100%;
+}
+
+/* ここからリストのみスクロールするcss領域 */
+/* リストのレイアウト */
+/* ページ固定 */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* レイアウト */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  gap: 8px;
+}
+
+
+/* ヘッダー */
+header {
+  flex-shrink: 0;
+}
+
+/* メイン */
+main {
+  flex: 1;
+  min-height: 0;
+}
+
+/* スクロール領域 */
+#orderList {
+  width: 100%;
+  min-width: 0;
+  overflow: auto;
+  background: #fff;
+}
+
+/* テーブル */
+#orderTable {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* stickyヘッダー */
+#orderTable thead th {
+  position: sticky;
+  top: 0;
+  /*background: #7fffd4;*/
+  z-index: 1;
+  border: 1px solid #999;
+  box-shadow: 0 2px 0 #999;
+}
+
+/* 横に広げる */
+#orderTable th,
+#orderTable td {
+  white-space: nowrap;
+}
+
+/* リスト自体の高さ */
+#orderList {
+height: 580px;  /* ← 調整OK */
+/*height: calc(100vh - 140px); /* ← 自動の場合 */
+}
+

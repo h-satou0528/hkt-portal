@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ユーザー管理</title>
+  <link rel="stylesheet" href="/company-admin-app/css/style.css">
+  
+</head>
+<body>
+<div id="companyName" class="company-name"></div>
+<h1>ユーザー管理</h1>
+
+<!-- 新規登録 -->
+<div class="form">
+  <input id="username" placeholder="ユーザー名">
+  <input id="password" type="password" placeholder="パスワード">
+  <select id="role"></select>
+  <!--- <select id="role">
+    <option value="user">一般</option>
+    <option value="admin">管理者</option>
+  </select> --->
+  <button onclick="createUser()">追加</button>
+</div>
+
+<!-- 一覧 -->
+<table id="userTable">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>ユーザー名</th>
+      <th>権限</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<br>
+<div class="card-grid">
+
+    <a class="card" href="/company-admin-app/index.html">
+      <h2>会社管理ダッシュボードに戻る</h2>
+      <p></p>
+    </a>
+
+    <a class="card" href="/company-admin-app/fiscal.html">
+      <h2>📅 年度管理</h2>
+      <p>年度切替・締め処理</p>
+    </a>
+
+  </div>
+
+<!-- <footer class="footer">
+  Company Admin System
+</footer> -->
+
+<!-- ✅ これ -->
+<script type="module" src="/company-admin-app/js/users.js" defer></script>
+
+
+
+</body>
+</html>

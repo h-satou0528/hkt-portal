@@ -41,24 +41,32 @@ export default async function ledgerServer(app, csrfProtection) {
   router.use(express.json());
   router.use(express.urlencoded({ extended: true }));
 
+  router.use((req, res, next) => {
+  if (!req.session?.company_id) {
+    return res.status(403).send("会社未設定");
+  }
+  next();
+});
+
+
 
   // ==========================
   // 現在年度取得
   // ==========================
-  async function getCurrentFiscalYear() {
-    const { rows } = await pool.query(
-      "SELECT current_fiscal_year FROM settings LIMIT 1"
-    );
-    return rows[0]?.current_fiscal_year ?? null;
-  }
+  //async function getCurrentFiscalYear() {
+  //  const { rows } = await req.db.query(
+  //    "SELECT current_fiscal_year FROM company_settings LIMIT 1"
+  //  );
+  //  return rows[0]?.current_fiscal_year ?? null;
+  //}
 
 
   // ==========================
   // 一覧取得
   // ==========================
   router.get(
-  "/ledger",
-  csrfProtection,
+  "/",
+  //csrfProtection,
   [
     query("q").optional().trim().escape(),
     query("sort").optional().trim()
@@ -69,10 +77,22 @@ export default async function ledgerServer(app, csrfProtection) {
 
     const q = req.query.q || "";
     const sort = req.query.sort || "created_desc";
-    const fiscalYear = await getCurrentFiscalYear();
 
-    let params = [fiscalYear];
-    let where = `WHERE fiscal_year = $1`;
+// 🔥 ここ！！（これが無いと今回のエラーになる）
+const department = req.query.department || "";
+
+    //const fiscalYear = await getCurrentFiscalYear();
+    const fiscalYear = req.fiscalYear;
+    const companyId = req.session.company_id;
+
+    let params = [fiscalYear, companyId];
+    let where = `WHERE fiscal_year = $1 AND company_id = $2`;
+
+    // 🔥 追加
+if (department) {
+  params.push(department);
+  where += ` AND department = $${params.length}`;
+}
 
     if (q) {
       params.push(`%${q.toLowerCase()}%`);
@@ -104,7 +124,7 @@ export default async function ledgerServer(app, csrfProtection) {
     }
 
     try {
-      const { rows } = await pool.query(
+      const { rows } = await req.db.query(
         `
         SELECT *
         FROM ledger
@@ -129,8 +149,8 @@ export default async function ledgerServer(app, csrfProtection) {
   // 新規登録
   // ==========================
   router.post(
-    "/ledger",
-    csrfProtection,
+    "/",
+    //csrfProtection,
     checkFiscalOpen,
     [
       body("kouji_number").notEmpty()
@@ -140,13 +160,15 @@ export default async function ledgerServer(app, csrfProtection) {
       if (handleValidationErrors(req, res)) return;
 
       const f = req.body;
-      const fiscalYear = await getCurrentFiscalYear();
+      //const fiscalYear = await getCurrentFiscalYear();
+      const fiscalYear = req.fiscalYear;
 
       try {
-        const { rows } = await pool.query(
+        const { rows } = await req.db.query(
           `
           INSERT INTO ledger (
   fiscal_year,
+  company_id,
   department,
   kouji_number,
   remarks,
@@ -186,12 +208,13 @@ export default async function ledgerServer(app, csrfProtection) {
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
             $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
             $21,$22,$23,$24,$25,$26,$27,$28,$29,$30,
-            $31,$32,$33,$34
+            $31,$32,$33,$34,$35
           )
           RETURNING *
           `,
           [
             fiscalYear,
+            req.session.company_id,
             f.department,
             f.kouji_number,
             f.remarks,
@@ -243,8 +266,8 @@ export default async function ledgerServer(app, csrfProtection) {
 // 更新
 // ==========================
 router.put(
-  "/ledger/:id",
-  csrfProtection,
+  "/:id",
+  //csrfProtection,
   checkFiscalOpen,
   [param("id").isInt()],
   async (req, res) => {
@@ -270,13 +293,14 @@ router.put(
       }
 
       values.push(id);
+      values.push(req.session.company_id);
 
-      const { rows } = await pool.query(
+      const { rows } = await req.db.query(
         `
         UPDATE ledger
         SET ${set.join(", ")},
             updated_at = now()
-        WHERE id = $${i}
+        WHERE id = $${i} AND company_id = $${i + 1}
         RETURNING *
         `,
         values
@@ -301,15 +325,15 @@ router.put(
   // 削除
   // ==========================
   router.delete(
-    "/ledger/:id",
-    csrfProtection,
+    "/:id",
+    //csrfProtection,
     checkFiscalOpen,
     [param("id").isInt()],
     async (req, res) => {
 
-      await pool.query(
-        "DELETE FROM ledger WHERE id = $1",
-        [Number(req.params.id)]
+      await req.db.query(
+        "DELETE FROM ledger WHERE id = $1 AND company_id = $2",
+        [Number(req.params.id), req.session.company_id]
       );
 
       res.sendStatus(204);
@@ -317,7 +341,7 @@ router.put(
   );
 
 
-  app.use("/api", router);
+  app.use("/api/ledger", router);
 
   console.log("🟢 ledger-server.js mounted");
 }

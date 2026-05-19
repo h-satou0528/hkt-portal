@@ -6,8 +6,9 @@ html, body {
 /* テーブルの基本 */
 #orderList {
   font-size: 1rem; /* body の文字サイズに追従 */
-  width: max-content;     /* 内容に合わせて広がる */
-  max-width: 100%;        /* 画面をはみ出しにくい */
+  width: 100%;     /* 内容に合わせて広がる */
+  max-height: 400px;
+  /*max-width: 100%;        /* 画面をはみ出しにくい */
   overflow-x: auto;       /* はみ出したら横スクロール */
 }
 
@@ -68,6 +69,7 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+    z-index: 9999;  /* ← 追加🔥 */
 }
 
 /* モーダル本体 */
@@ -181,27 +183,27 @@ header {
 
 
 /* header と main を縦に配置する（デフォルトの block に戻す） */
-header, main {
+/*header, main {
   display: block;
   width: 100%;
-}
+} */
 
 /* main 内のテーブルを中央に配置 */
-main {
+/*main {
   display: flex;
   justify-content: center; /* 横中央寄せ */
-  margin-top: 20px;
+  /*margin-top: 20px;
 }
 
 /* テーブル全体のスタイル調整（任意） */
-#orderTable {
+/*#orderTable {
   border-collapse: collapse;
-  width: 100%;
+  /*width: 100%; */
   /*max-width: 1200px;*/
-  background: white;
+  /*background: white;
 
-  table-layout: auto;      /* 内容に合わせてセル幅を調整 */
-}
+  /*table-layout: auto;      /* 内容に合わせてセル幅を調整 */
+/*}
 
 /* 共通セル */
 #orderTable th,
@@ -210,7 +212,7 @@ main {
   padding: 6px 10px;
   text-align: left;
 
-  white-space: normal;     /* 自動で折り返し */
+  white-space: nowrap;    /* 自動で折り返し */
   /* word-break: break-word;  /* 長い文字列も折り返す */
   /*vertical-align: top;     /* 行が広がった時に上揃え（任意） */
 }
@@ -231,17 +233,17 @@ header {
 
 /* 検索ボックスの幅を広げる */
 #searchInput {
-  width: 300px;  /* 任意で調整可能 */
+  width: 200px;  /* 任意で調整可能 */
   padding: 4px 8px;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 /* 数字系の列を右寄せ */
-#orderTable td:nth-child(11), /* 数量 */
-#orderTable td:nth-child(13), /* 単価 */
-#orderTable td:nth-child(14), /* 金額(税抜) */
-#orderTable td:nth-child(15), /* 金額(税込) */
-#orderTable td:nth-child(16)  /* 定価(単価) */
+#orderTable td:nth-child(12), /* 数量 */
+#orderTable td:nth-child(14), /* 単価 */
+#orderTable td:nth-child(15), /* 金額(税抜) */
+#orderTable td:nth-child(16), /* 金額(税込) */
+#orderTable td:nth-child(17)  /* 定価(単価) */
 {
   text-align: right;
 }
@@ -439,3 +441,256 @@ header {
   width: 280px;        /* お好みで 280〜400px */
  /* max-width: 100%;
 }*/
+
+/* クローン用新モーダルの入力欄のスクロール */
+#bulkContainer {
+  overflow-x: auto;   /* ← 横スクロール有効 */
+  max-width: 100%;
+}
+
+/*クローンのテーブルの崩れ防止*/
+.bulk-table {
+  border-collapse: collapse;
+  white-space: nowrap;  /* ← 改行させない */
+}
+
+.bulk-table th,
+.bulk-table td {
+  border: 1px solid #ccc;
+  padding: 4px;
+}
+
+/* 部門 */
+.bulk-table td:nth-child(1) input {
+  width: 40px;
+  text-align: center;
+}
+/* 工事番号 */
+.bulk-table td:nth-child(2) input {
+  width: 70px;
+  text-align: center;
+}
+/*区分 */
+.bulk-table td:nth-child(3) input {
+  width: 40px;
+  text-align: center;
+}
+/*CD */
+.bulk-table td:nth-child(4) input {
+  width: 40px;
+  text-align: center;
+}
+/*発注先 */
+.bulk-table td:nth-child(5) input {
+  width: 150px;
+  text-align: center;
+}
+/*発注者 */
+.bulk-table td:nth-child(6) input {
+  width: 50px;
+  text-align: center;
+}
+/*発注日 */
+.bulk-table td:nth-child(7) input {
+  width: 70px;
+  text-align: center;
+}
+/*メーカー */
+.bulk-table td:nth-child(8) input {
+  width: 100px;
+  text-align: center;
+}
+/*品名 */
+.bulk-table td:nth-child(9) input {
+  width: 250px;
+}
+/*形式 */
+.bulk-table td:nth-child(10) input {
+  width: 150px;
+  text-align: center;
+}
+/*数量 */
+.bulk-table td:nth-child(11) input {
+  width: 40px;
+  text-align: center;
+}
+/*単位 */
+.bulk-table td:nth-child(12) input {
+  width: 40px;
+  text-align: center;
+}
+/*単価 */
+.bulk-table td:nth-child(13) input {
+  width: 70px;
+  text-align: right;
+}
+/*金額(税抜) */
+.bulk-table td:nth-child(14) input {
+  width: 70px;
+  text-align: right;
+}
+/*金額(税込) */
+.bulk-table td:nth-child(15) input {
+  width: 70px;
+  text-align: right;
+}
+/*定価 */
+.bulk-table td:nth-child(16) input {
+  width: 70px;
+  text-align: right;
+}
+/*納品日 */
+.bulk-table td:nth-child(17) input {
+  width: 70px;
+  text-align: center;
+}
+/*Ｍ */
+.bulk-table td:nth-child(18) input {
+  width: 40px;
+  text-align: center;
+}
+/*Ｃ */
+.bulk-table td:nth-child(19) input {
+  width: 40px;
+  text-align: center;
+}
+/*請求書 */
+.bulk-table td:nth-child(20) input {
+  width: 70px;
+  text-align: center;
+}
+/* 備考（広く） */
+.bulk-table td:nth-child(21) input {
+  width: 80px;
+}
+
+/* クローンモーダルのヘッダー色 */
+thead th {
+  background-color: #7fffd4;
+  padding: 8px;
+}
+
+/* ここからリストのみスクロールするcss領域 */
+/* ページスクロールを禁止する　*/
+/* ページ固定 */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* レイアウト */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  width: 100%;
+  max-width: 100%;   /* ← これ重要🔥 */
+  overflow-x: hidden; /* ← 念押し🔥 */
+}
+
+/* ヘッダー */
+header {
+  flex-shrink: 0;
+}
+
+/* ← ここが超重要 */
+main {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  max-width: 100%;   /* ← これ追加🔥 */
+}
+
+/* ← スクロール領域 */
+#orderList {
+  width: 100%;
+  min-width: 0;   /* ← これ絶対🔥 */
+  overflow: auto;
+}
+
+/* テーブル */
+#orderTable {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;   /* ← ここ重要🔥 */
+  min-width: 100%; 
+  background: #fff;
+}
+
+/* sticky */
+#orderTable thead th {
+  position: sticky;
+  top: 0;
+  background: #7fffd4;
+  z-index: 1;
+  border: 1px solid #999;
+  box-shadow: 0 2px 0 #999;
+}
+
+/* 横に広げる */
+#orderTable th,
+#orderTable td {
+  white-space: nowrap;
+}
+
+#orderList {
+  min-height: 300px;
+  max-height: 560px;
+}
+
+
+/* =========================
+   CSV取込
+========================= */
+
+.csv-import-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  border: 2px solid #e28b4a;
+  border-radius: 6px;
+
+  padding: 6px 12px;
+
+  background-color: #fff4ea;
+
+  height: 44px;
+  box-sizing: border-box;
+}
+
+/* CSVボタン */
+#uploadCsvBtn {
+  background-color: #e28b4a;
+  color: white;
+
+  border: none;
+  border-radius: 4px;
+
+  padding: 4px 12px;
+
+  cursor: pointer;
+}
+
+/* hover */
+#uploadCsvBtn:hover {
+  opacity: 0.85;
+}
+
+/* CSV結果表示 */
+#csvImportResult {
+  font-size: 13px;
+}
+
+/* スピナー */
+#csvSpinner {
+  margin-top: 8px;
+
+  color: #e28b4a;
+  font-weight: bold;
+}

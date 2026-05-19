@@ -55,6 +55,135 @@ function bindUI() {
   document.getElementById('updateBtn').addEventListener('click', onUpdate);
   document.getElementById('deleteBtn').addEventListener('click', onDelete);
 
+   // 🔥 ここ追加
+  document.getElementById('bulkCloneBtn').addEventListener('click', async () => {
+
+  const ids = getCheckedRows();
+
+  if (ids.length === 0) {
+    alert("選択してください");
+    return;
+  }
+
+  const rows = [];
+
+  document.querySelectorAll('.row-check:checked').forEach(chk => {
+    const tr = chk.closest('tr');
+    const tds = tr.querySelectorAll('td');
+
+    rows.push({
+  department: tds[1].textContent,
+  kouji_number: tds[2].textContent,
+  category: tds[3].textContent,
+  cd: tds[4].textContent,
+  supplier: tds[5].textContent,
+  orderer: tds[6].textContent,
+  order_date: tds[7].textContent,
+  maker: tds[8].textContent,
+  product_name: tds[9].textContent,
+  model: tds[10].textContent,
+  quantity: tds[11].textContent,
+  unit: tds[12].textContent,
+  unit_price: tds[13].textContent,
+  amount_ex: tds[14].textContent,
+  amount_inc: tds[15].textContent,
+  list_price: tds[16].textContent,
+  delivery_date: tds[17].textContent,
+  m: tds[18].textContent,
+  c: tds[19].textContent,
+  invoice_date: tds[20].textContent,
+  notes: tds[21].textContent
+});
+  });
+
+  // ✅ 修正ポイント
+  openBulkModal(rows);
+});
+
+
+  //一括POST（ここが最重要🔥）
+  const bulkSaveBtn = document.getElementById('bulkSaveBtn');
+
+if (bulkSaveBtn) {
+  bulkSaveBtn.addEventListener('click', async () => {
+
+    
+    const rows = [];
+
+const trs = document.querySelectorAll('#bulkContainer tbody tr');
+console.log("🔥 tr数:", trs.length);
+
+trs.forEach((tr, i) => {
+  const inputs = tr.querySelectorAll('input');
+
+  console.log(`👉 行${i} input数:`, inputs.length);
+
+  if (inputs.length < 21) {
+    console.warn("⚠️ input不足", inputs);
+    return;
+  }
+
+  rows.push({
+    department: inputs[0].value || "1技",
+    kouji_number: inputs[1].value,
+    category: inputs[2].value || null,
+    cd: inputs[3].value || null,
+    supplier: inputs[4].value,
+    orderer: inputs[5].value,
+
+    order_date: formatDateForSQL(inputs[6].value),
+
+    maker: inputs[7].value,
+    product_name: inputs[8].value,
+    model: inputs[9].value,
+
+    quantity: Number(inputs[10].value.replace(/,/g, '')) || 0,
+    unit: inputs[11].value,
+    unit_price: Number(inputs[12].value.replace(/,/g, '')) || 0,
+    amount_ex: Number(inputs[13].value.replace(/,/g, '')) || 0,
+    amount_inc: Number(inputs[14].value.replace(/,/g, '')) || 0,
+    list_price: Number(inputs[15].value.replace(/,/g, '')) || 0,
+
+    delivery_date: formatDateForSQL(inputs[16].value),
+
+    M: inputs[17].value,
+    C: inputs[18].value,
+
+    invoice_date: formatDateForSQL(inputs[19].value),
+
+    notes: inputs[20].value
+  });
+});
+
+console.log("🚀 rows送信:", rows);
+console.log("🚀 rows length:", rows.length);
+
+    const res = await fetch('/api/orderdata/bulkInsert', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
+      credentials: 'include',
+      body: JSON.stringify({ rows })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("❌ エラー内容:", errText);
+      alert("クローン登録に失敗しました");
+      return;
+    }
+
+    alert("クローン登録しました");
+    closeBulkModal();
+    loadList();
+  });
+}
+
+
+
+
   // ★↓↓↓↓ ここ追加 ↓↓↓↓
   document.getElementById("searchByCdBtn")
     .addEventListener("click", loadList);
@@ -127,6 +256,10 @@ async function loadList() {
   if (cd) params.append("cd", cd);
   if (sort) params.append("sort", sort);
 
+  // 👇 追加
+  const url = `/api/orderdata?${params.toString()}`;
+  console.log("🔥 fetch URL:", url);
+
   const resp = await fetch(`/api/orderdata?${params.toString()}`, {
     credentials: "include"
   });
@@ -145,14 +278,28 @@ function renderTable(rows) {
     const tr = document.createElement('tr');
     tr.dataset.id = r.id;
 
-    const addCell = (txt) => {
-      const td = document.createElement('td');
-      td.textContent =
-        typeof txt === 'boolean'
-          ? (txt ? 'あり' : 'なし')
-          : (txt === null || txt === undefined ? '' : String(txt));
-      tr.appendChild(td);
-    };
+    // 🔥 ① ここに追加（最初に！）
+  const tdCheck = document.createElement('td');
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.classList.add('row-check');
+  checkbox.dataset.id = r.id;
+
+  // 行クリックでモーダル開かないようにする
+  checkbox.addEventListener('click', (e) => e.stopPropagation());
+
+  tdCheck.appendChild(checkbox);
+  tr.appendChild(tdCheck);
+
+  // ↓既存処理そのまま
+  const addCell = (txt) => {
+    const td = document.createElement('td');
+    td.textContent =
+      typeof txt === 'boolean'
+        ? (txt ? 'あり' : 'なし')
+        : (txt === null || txt === undefined ? '' : String(txt));
+    tr.appendChild(td);
+  };
 
     addCell(r.department);
     addCell(r.kouji_number);
@@ -182,6 +329,11 @@ function renderTable(rows) {
   }
 }
 
+//2025/04/01 → 2025-04-01に変換
+function formatDateForSQL(v) {
+  if (!v) return null;
+  return v.replace(/\//g, '-'); // 2025/04/01 → 2025-04-01
+}
 
 
 function openModalForEdit(row) {
@@ -230,6 +382,88 @@ function openModalForEdit(row) {
   resetTaxCalculation();
 }
 
+// モーダルに複数展開
+function openBulkModal(rows) {
+  const container = document.getElementById('bulkContainer');
+  container.innerHTML = '';
+
+  const table = document.createElement('table');
+  table.classList.add('bulk-table');
+
+  // ===== ヘッダ =====
+  const thead = document.createElement('thead');
+  thead.innerHTML = `
+    <tr class="header-row">
+      <th>部門</th>
+      <th>工事番号</th>
+      <th>区分</th>
+      <th>CD</th>
+      <th>発注先</th>
+      <th>発注者</th>
+      <th>発注日</th>
+      <th>メーカー</th>
+      <th>品名</th>
+      <th>型式</th>
+      <th>数量</th>
+      <th>単位</th>
+      <th>単価</th>
+      <th>金額(税抜)</th>
+      <th>金額(税込)</th>
+      <th>定価</th>
+      <th>納品日</th>
+      <th>M</th>
+      <th>C</th>
+      <th>請求書</th>
+      <th>備考</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+
+  // ===== ボディ =====
+  const tbody = document.createElement('tbody');
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+
+    const createInput = (val = '') => {
+      const td = document.createElement('td');
+      const input = document.createElement('input');
+      input.value = val || '';
+      td.appendChild(input);
+      return td;
+    };
+
+    tr.appendChild(createInput(r.department));
+    tr.appendChild(createInput(r.kouji_number));
+    tr.appendChild(createInput(r.category));
+    tr.appendChild(createInput(r.cd));
+    tr.appendChild(createInput(r.supplier));
+    tr.appendChild(createInput(r.orderer));
+    tr.appendChild(createInput(r.order_date));
+    tr.appendChild(createInput(r.maker));
+    tr.appendChild(createInput(r.product_name));
+    tr.appendChild(createInput(r.model));
+    tr.appendChild(createInput(r.quantity));
+    tr.appendChild(createInput(r.unit));
+    tr.appendChild(createInput(r.unit_price));
+    tr.appendChild(createInput(r.amount_ex));
+    tr.appendChild(createInput(r.amount_inc));
+    tr.appendChild(createInput(r.list_price));
+    tr.appendChild(createInput(r.delivery_date));
+    tr.appendChild(createInput(r.m));
+    tr.appendChild(createInput(r.c));
+    tr.appendChild(createInput(r.invoice_date));
+    tr.appendChild(createInput(r.notes));
+
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  container.appendChild(table);
+
+  document.getElementById('bulkModal').classList.remove('hidden');
+}
+
 //リストから呼出しクローンを新規登録にする
 document.getElementById('cloneSaveBtn').addEventListener('click', () => {
   // ★ IDを消す → 新規扱いになる
@@ -239,6 +473,14 @@ document.getElementById('cloneSaveBtn').addEventListener('click', () => {
   onSave(); // ← saveBtn が使っている関数
 });
 
+//クローンのcloseボタンのイベント
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("bulkCloseBtn").addEventListener("click", closeBulkModal);
+});
+//クローンモーダルを閉じる
+function closeBulkModal() {
+  document.getElementById('bulkModal').classList.add('hidden');
+}
 
 async function onSave() {
   const payload = collectForm();
@@ -282,6 +524,12 @@ async function onSave() {
     alert("登録に失敗しました");
   }
 }
+//チェックで選択したデータ取得
+function getCheckedRows() {
+  const checks = document.querySelectorAll('.row-check:checked');
+  return Array.from(checks).map(c => c.dataset.id);
+}
+
 
 
 
@@ -466,19 +714,117 @@ listPriceInput.addEventListener("blur", () => {
 });
 
 
-//数量 × 単価 → 税抜 → 税込 計算
-document.getElementById("quantity").addEventListener("input", calculateAmount);
-document.getElementById("unit_price").addEventListener("input", calculateAmount);
+// ==============================
+// 数量、単価、税抜、税込の各種計算
+// ==============================
+let isCalculating = false;
 
-function calculateAmount() {
+// ==============================
+// 入力イベント
+// ==============================
+document.getElementById("quantity").addEventListener("input", calculateFromUnit);
+document.getElementById("unit_price").addEventListener("input", calculateFromUnit);
+document.getElementById("amount_ex").addEventListener("input", calculateFromAmount);
+document.getElementById("amount_inc").addEventListener("input", calculateFromAmountInc);
+
+
+// ==============================
+// ① 数量 × 単価 → 税抜 → 税込
+// ==============================
+function calculateFromUnit() {
+  if (isCalculating) return;
+  isCalculating = true;
+
   const quantity = unformatNumber(document.getElementById("quantity").value || "0");
   const unitPrice = unformatNumber(document.getElementById("unit_price").value || "0");
+
+  if (!quantity || !unitPrice) {
+    isCalculating = false;
+    return;
+  }
 
   const amountEx = quantity * unitPrice;
   const amountInc = Math.floor(amountEx * 1.1);
 
   document.getElementById("amount_ex").value = formatNumber(amountEx);
   document.getElementById("amount_inc").value = formatNumber(amountInc);
+
+  isCalculating = false;
+}
+
+
+// ==============================
+// ② 税抜 → 単価 → 税込
+// ==============================
+function calculateFromAmount() {
+  if (isCalculating) return;
+  isCalculating = true;
+
+  const quantity = unformatNumber(document.getElementById("quantity").value || "0");
+  const amountEx = unformatNumber(document.getElementById("amount_ex").value || "0");
+
+  if (!quantity || !amountEx) {
+    isCalculating = false;
+    return;
+  }
+
+  const unitPrice = Math.floor(amountEx / quantity);
+  const amountInc = Math.floor(amountEx * 1.1);
+
+  document.getElementById("unit_price").value = formatNumber(unitPrice);
+  document.getElementById("amount_inc").value = formatNumber(amountInc);
+
+  isCalculating = false;
+}
+
+
+// ==============================
+// ③ 税込 → 税抜 → 単価
+// ==============================
+function calculateFromAmountInc() {
+  if (isCalculating) return;
+  isCalculating = true;
+
+  const quantity = unformatNumber(document.getElementById("quantity").value || "0");
+  const amountInc = unformatNumber(document.getElementById("amount_inc").value || "0");
+
+  if (!quantity || !amountInc) {
+    isCalculating = false;
+    return;
+  }
+
+  const amountEx = Math.round(amountInc / 1.1);
+  const unitPrice = Math.round(amountEx / quantity);
+
+  document.getElementById("amount_ex").value = formatNumber(amountEx);
+  document.getElementById("unit_price").value = formatNumber(unitPrice);
+
+  isCalculating = false;
+}
+
+
+// ==============================
+// ② 税抜 → 単価 → 税込
+// ==============================
+function calculateFromAmount() {
+  if (isCalculating) return;
+  isCalculating = true;
+
+  const quantity = unformatNumber(document.getElementById("quantity").value || "0");
+  const amountEx = unformatNumber(document.getElementById("amount_ex").value || "0");
+
+  if (!quantity || !amountEx) {
+    isCalculating = false;
+    return;
+  }
+
+  const unitPrice = Math.floor(amountEx / quantity);
+  const amountInc = Math.floor(amountEx * 1.1);
+
+  document.getElementById("unit_price").value = formatNumber(unitPrice);
+  document.getElementById("amount_inc").value = formatNumber(amountInc);
+
+  isCalculating = false;
 }
 
 
@@ -850,3 +1196,82 @@ function resetTaxCalculation() {
   if (taxResult) taxResult.value = ""; // 計算結果クリア
 }
 
+
+
+//CSVアップロード処理
+//CSVアップロード処理
+document.getElementById("uploadCsvBtn")
+  .addEventListener("click", async () => {
+
+    const spinner = document.getElementById("csvSpinner");
+
+    const fileInput = document.getElementById("csvFileInput");
+
+    if (!fileInput.files.length) {
+      alert("CSVファイルを選択してください");
+      return;
+    }
+
+    spinner.style.display = "block";
+
+    const file = fileInput.files[0];
+
+    const formData = new FormData();
+    formData.append("csvfile", file);
+
+    try {
+
+      const res = await fetch("/api/order-import/csv", {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "アップロード失敗");
+      }
+
+      document.getElementById("csvImportResult").innerHTML = `
+        <div style="color:green;">
+          CSVアップロード完了<br>
+          総件数: ${data.totalRows}<br>
+          登録件数: ${data.inserted}<br>
+          重複スキップ: ${data.skipped}
+        </div>
+      `;
+
+      alert(`
+          CSVアップロード完了
+
+          総件数: ${data.totalRows}
+          登録件数: ${data.inserted}
+          重複スキップ: ${data.skipped}
+      `);
+
+      // 🔥 一覧再読込
+      if (typeof loadList === "function") {
+        await loadList();
+      }
+
+      // 任意：ファイル選択クリア
+      fileInput.value = "";
+
+    } catch (err) {
+
+      console.error(err);
+
+      document.getElementById("csvImportResult").innerHTML = `
+        <div style="color:red;">
+          CSVアップロード失敗
+        </div>
+      `;
+
+      alert("CSVアップロード失敗");
+
+    } finally {
+
+      spinner.style.display = "none";
+    }
+});

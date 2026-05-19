@@ -88,7 +88,11 @@
   <option>2600_CO2関係</option>
   <option>2800_造船関係一般</option>
   <option>2900_ME他造船関係</option>
-  <option>3001_函館</option>
+  <option>3001_函館どつく</option>
+  <option>3051_函館どつく(外注)</option>
+  <option>3101_メーカー支援</option>
+  <option>3201_その他</option>
+  <option></option>
   <option>三久電設001_電中研</option>
   <option>三久電設101_テクノ</option>
   <option>三久電設201_官庁</option>
@@ -106,21 +110,21 @@
 </select>
 
   
-  <button id="openModal">新規工事命令書を発行</button>
+  <button id="openModal">①新規工事命令書を作成</button>
   
   
   <!-- 🔍 検索フォーム -->
   <div style="margin: 15px 0;">
     <label for="searchInput"><strong> 　検　索：</strong></label>
-    <input type="text" id="searchInput" placeholder="工事番号や文字を入力" style="width: 300px; padding: 5px; font-size: 14px; background-color: #e0f3ff;">
+    <input type="text" id="searchInput" placeholder="工事番号や文字を入力">
   </div>
 
 <!-- ✅ モーダルを開くボタン（削除厳禁） -->
-  <button id="openModalBtn">新規実績表を作成</button>
+  <button id="openModalBtn">②新規実績表を作成</button>
   <!-- <button onclick="location.reload()">ページをリロード</button>-->
-  <button id="openCostsModalBtn">材料費・工数・外注費を作成</button>
+  <button id="openCostsModalBtn">③材料費・工数・外注費を作成</button>
   <a href="https://ezx-yhokuto.com/index.php/s/sAq7GR7zpkCqwp2" target="_blank" style="display:inline-block; padding:4px 5px; background-color:#4CAF50; color:white; text-decoration:none; border-radius:3px; font-size:13px;">
-  見積書
+  ④見積書
 </a>
 
 </div>
@@ -160,7 +164,11 @@
       <option>2600_CO2関係</option>
       <option>2800_造船関係一般</option>
       <option>2900_ME他造船関係</option>
-      <option>3001_函館</option>
+      <option>3001_函館どつく</option>
+      <option>3051_函館どつく(外注)</option>
+      <option>3101_メーカー支援</option>
+      <option>3201_その他</option>
+      <option></option>
       <option>三久電設001_電中研</option>
       <option>三久電設101_テクノ</option>
       <option>三久電設201_官庁</option>
@@ -173,7 +181,10 @@
 
   <tr>
      <td class="label-cell">工事番号</td>
-    <td colspan="3"><input type="text" id="kouji_number" name="kouji_number"></td>
+    <td colspan="3">
+      <input type="text" id="kouji_number" name="kouji_number">
+      <div id="koujiNumberMsg" style="font-size:12px; margin-top:4px;"></div>
+    </td>
   </tr>
 
   <tr>
@@ -207,7 +218,7 @@
 
 <tr>
   <td class="label-cell">見積金額(税抜)</td>
-  <td><input type="text" name="mitsumori_taxex" id="mitsumori_taxex" class="amount-input"></td>
+  <td><input type="text" name="mitsumori_taxex" id="mitsumori_taxex" class="amount-input" inputmode="numeric" autocomplete="off"></td>
   <td class="label-cell">見積金額(税込)</td>
   <td class="right-align"><span id="mitsumori_taxin">0</span>
         <input type="hidden" name="mitsumori_taxin" id="hidden_mitsumori_taxin" value="0"></td>
@@ -215,7 +226,7 @@
 
 <tr>
   <td class="label-cell">受注金額(税抜)</td>
-  <td><input type="text" name="contract_taxex" id="contract_taxex" class="amount-input"></td>
+  <td><input type="text" name="contract_taxex" id="contract_taxex" class="amount-input" inputmode="numeric" autocomplete="off"></td>
   <td class="label-cell">受注金額(税込)</td>
   <td class="right-align"><span id="contract_taxin">0</span>
         <input type="hidden" name="contract_taxin" id="hidden_contract_taxin" value="0"></td>
@@ -278,48 +289,65 @@
   <td>記　事</td>
   <td><textarea id="article" name="article" rows="1" style="width:96%"></textarea></td>
 </tr>
+<label>
+  <input type="checkbox" id="reflectPerformance">
+  「実行予算・実績表」に反映させる
+</label>
+
+<label class="reflect-label">
+  <input type="checkbox" id="reflectEntries">
+  「内川工事番号登録」に反映させる (内川函館専用)
+</label><br>
+
+  <label>
+  <input type="checkbox" id="reflectLedger">
+  「工事台帳」に反映させる
+</label>
 </div>
+
+
 
 <!-- <h3>登録済み工事命令書一覧</h3>-->
 <div id="orderListWrapper">
-<table id="orderList" border="1">
+<table id="orderList">
+
   <thead>
     <!-- 上段のグループ見出し -->
     <tr>
       
-      <th colspan="10">工　事　命　令　書</th>
+      <th colspan="10"class="area-header0">工　事　命　令　書</th>
       <th colspan="7" class="area-header">実 効 予 算 表</th>
       <th colspan="6" class="area-header2">実　　績　　表</th>
-      <th colspan="1" class="area-header2">実績表</th>
+      <th colspan="1" class="area-header3">実績表</th>
       
     </tr>
     <!-- 下段の項目 -->
     <tr>
-      <th>大工番</th>
-      <th>工事番号</th>
-      <th>発注元</th> <!-- 追加 -->
-      <th>工事件名</th>
-      <th>会長</th>
-      <th>社長</th>
-      <th>取締</th>
-      <th>総務</th>
-      <th>部長</th>
-      <th>担当</th>
+      <th class="area-header0">大工番</th>
+      <th class="area-header0">工事番号</th>
+      <th class="area-header0">発注元</th> <!-- 追加 -->
+      <th class="area-header0">工事件名</th>
+      <th class="area-header0">会長</th>
+      <th class="area-header0">社長</th>
+      <th class="area-header0">取締</th>
+      <th class="area-header0">総務</th>
+      <th class="area-header0">部長</th>
+      <th class="area-header0">担当</th>
     <!-- 実績表 13列 -->
 <th class="area-header">工事番号</th>
 <th class="area-header">会長</th>
 <th class="area-header">社長</th>
 <th class="area-header">取締</th>
 <th class="area-header">部長</th>
-<th class="area-header">課長</th>
+<th class="area-header">調達</th>
 <th class="area-header">担当</th>
 <th class="area-header2">会長</th>
 <th class="area-header2">社長</th>
 <th class="area-header2">取締</th>
 <th class="area-header2">部長</th>
-<th class="area-header2">課長</th>
+<th class="area-header2">調達</th>
 <th class="area-header2">担当</th>
-<th class="area-header2">材料費</th>
+<th class="area-header3">材料費</th>
     </tr>
   </thead>
   <tbody></tbody>
@@ -405,7 +433,7 @@
     <th class="label-cell">社　長</th>
     <th class="label-cell">取締役</th>
     <th class="label-cell">部　長</th>
-    <th class="label-cell">課　長</th>
+    <th class="label-cell">調達</th>
     <th class="label-cell">担　当</th>
   </tr>
   <tr>
@@ -426,6 +454,7 @@
         <select name="kaichou_down">
         <option value=""></option>
         <option>承認</option>
+        <option>━━</option>
       </select>
     </td>
     <td>
@@ -438,6 +467,7 @@
        <select name="shachou_down">
         <option value=""></option>
         <option>承認</option>
+        <option>━━</option>
       </select>
     </td>
     <td>
@@ -450,6 +480,7 @@
        <select name="torishimari_down">
         <option value=""></option>
         <option>承認</option>
+        <option>━━</option>
       </select>
     </td>
 
@@ -462,6 +493,7 @@
           <select name="soumu_down">
           <option value=""></option>
           <option>承認</option>
+          <option>━━</option>
           <!--<option>差戻</option>-->
          </select>
    </td>
@@ -476,6 +508,7 @@
        <select name="buchou_down">
         <option value=""></option>
         <option>承認</option>
+        <option>━━</option>
       </select>
     </td>
     
@@ -886,8 +919,11 @@
   </div>
 </div>
 
-
-
+<!--- ローディング表示を追加 -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="spinner"></div>
+  <div class="loading-text">データを読み込み中です…</div>
+</div>
 
 
 

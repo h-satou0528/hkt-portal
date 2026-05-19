@@ -33,11 +33,11 @@
 
 
 <h1>工事番号登録フォーム</h1></p>
-<!--<label for="yearSelect">西暦を選択：</label>-->
+<!--<label for="yearSelect">西暦を選択：</label>
 <select id="yearSelect">
    <option value="2025">2025</option>
   <option value="2026">2026</option>
-</select> 
+</select> -->
 
   <!-- 必要な年を追加 -->
 </select>
@@ -64,7 +64,7 @@
         <label><input type="radio" name="bandai" value="2051-2099"> 2051番台〜　テラテック関係　　　<font color=red>旧901(支援)</font></label>
         <label><input type="radio" name="bandai" value="2101-2199"> 2101番台〜　日立製作所関係　　　<font color=red>旧751～</font></label>
         <label><input type="radio" name="bandai" value="2201-2249"> 2201番台〜　造船関係　　　　　　<font color=red>旧801～(計器)</font></label>
-        <label><input type="radio" name="bandai" value="2251-2299"> 2251番台〜　新潟造船応援工事　　<font color=red>旧851～(応援工事)</font></label>
+        <label><input type="radio" name="bandai" value="2251-2299"> 2251番台〜　常石三保造船応援　　<font color=red>旧851～(応援工事)</font></label>
         <label><input type="radio" name="bandai" value="2301-2499"> 2301番台〜　三波工業、他　　　　<font color=red>旧1001～(ANT、組配)</font></label>
         <label><input type="radio" name="bandai" value="2501-2549"> 2501番台〜　艦艇(横監、他)　　　<font color=red>旧1201～(ANT直受け)</font></label>
         <label><input type="radio" name="bandai" value="2551-2599"> 2551番台〜　工業団地一般　　　　<font color=red>旧1501～</font></label>
@@ -105,7 +105,7 @@
       <p id="saveMessage" style="color: green; display: none;">保存しました。</p>
 
       <div class="button-row">
-      <button class="saveEntryBtn">保存</button>
+      <button class="saveEntryBtn">保　存</button>
       <button class="outModalBtn">閉じる</button>
       <button class="loadEntriesBtn" hidden>読み込み</button>
       </div>
@@ -142,8 +142,10 @@
     <button class="closeBranchModal()">閉じる</button>
     削除厳禁
     -->
-    <button class="branch-save-btn">保存</button>
+    <div class="button-row-branch">
+    <button class="branch-save-btn">保　存</button>
     <button class="branch-close-btn">閉じる</button>
+    </div>
   </div>
 </div>
 
@@ -261,9 +263,12 @@
       <option value="△">△</option>
     </select>
   </label>
-  <button onclick="saveEdit()">保存</button>
-  <button onclick="closeModal()">閉じる</button>
-  <button onclick="markCurrentEditingRowAsMissing()">欠番にする</button>
+  <div class="modal-buttons">
+  <button class="btn-save" onclick="saveEdit()">保　存</button>
+  <button class="btn-close" onclick="closeModal()">閉じる</button>
+  <button class="btn-missing" onclick="markCurrentEditingRowAsMissing()">欠番にする</button>
+  <button id="deleteBtn" class="btn-delete">削除する</button>
+</div>
 </div>
 
 

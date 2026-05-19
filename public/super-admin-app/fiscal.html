@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>年度管理</title>
+<link rel="stylesheet" href="/super-admin-app/css/style.css">
+</head>
+
+<body>
+
+<header class="header">
+  <!-- <h1>年度管理</h1> -->
+  <p>年度切替 / 年度締め</p>
+  <div class="current-company-bar">
+  🏢 対象会社：<span id="currentCompanyName">-</span>
+</div>
+</header>
+
+<main class="container">
+
+  <!-- 現在年度 -->
+  <section class="card fiscal-card">
+    <h2>現在年度情報</h2>
+    <p>現在年度: <span id="currentYear">-</span></p>
+    <p>状態: <span id="yearStatus">-</span></p>
+  </section>
+
+  <!-- 年度切替 -->
+  <section class="card fiscal-card">
+    <h2>年度切替</h2>
+    <select id="yearSelect"></select>
+    <button id="switchYearBtn">年度切替</button>
+  </section>
+
+  <!-- 締め -->
+  <section class="card fiscal-card">
+    <h2>年度締め / 解除</h2>
+    <button id="closeYearBtn" class="danger">年度締め</button>
+    <button id="openYearBtn" class="safe">年度解除</button>
+  </section>
+
+</main>
+
+<div class="card-grid">
+  <a class="back-link" href="/super-admin-app/index.html">
+    <h2>← ダッシュボードに戻る</h2>
+    <p>Super Admin Portal</p>
+  </a>
+</div>
+
+<footer class="footer">
+SaaS Super Admin System
+</footer>
+
+<script type="module" src="/super-admin-app/js/fiscal.js"></script>
+</body>
+</html>

@@ -1,14 +1,20 @@
 let csrfToken = "";
-
+let modal; // ←🔥 グローバル宣言
 // =============================
 // 初期化
 // =============================
 document.addEventListener("DOMContentLoaded", async () => {
+  modal = document.getElementById("orderModal"); // ←🔥 これ追加
+
+
   await fetchCsrf();
   bindUI();
   initDateInputs();
   initAmountFormatting();
+  enableModalDrag(); // ←🔥 これ追加！！
   await loadLedgerList();
+
+ 
 });
 
 // =============================
@@ -31,7 +37,7 @@ const dateFields = [
 const amountFields = [
   "p_amount","transport_ex","o_amount","determ_amount",
   "claim","d_amount","bill_amount","deposit_total",
-  "bill_transfer","offset_amount","transfer_amount",
+  "offset_amount","transfer_amount",
   "bill_amount2","cash","check_amount"
 ];
 
@@ -56,6 +62,10 @@ function bindUI() {
 
   searchInput.addEventListener("input", debounce(loadLedgerList, 300));
   sortSelect.addEventListener("change", loadLedgerList);
+
+  // 🔥 これ追加
+  document.getElementById("departmentFilter")
+    ?.addEventListener("change", loadLedgerList);
 }
 
 // =============================
@@ -113,10 +123,17 @@ function formatDateForInput(val) {
 function openModalForNew() {
   orderForm.reset();
   id.value = "";
+
+  modal.classList.remove("hidden");
+
+  // 🔥 初期中央配置（これ追加）
+  const content = modal.querySelector(".modal-content");
+  content.style.left = (window.innerWidth / 2 - content.offsetWidth / 2) + "px";
+  content.style.top = (window.innerHeight / 2 - content.offsetHeight / 2) + "px";
+
   saveBtn.classList.remove("hidden");
   updateBtn.classList.add("hidden");
   deleteBtn.classList.add("hidden");
-  modal.classList.remove("hidden");
 }
 
 // =============================
@@ -131,10 +148,23 @@ async function loadLedgerList() {
   const q = searchInput.value;
   const sort = sortSelect.value;
 
-  const params = new URLSearchParams({ q, sort });
-  const res = await fetch(`/api/ledger?${params}`, { credentials: "include" });
-  const rows = await res.json();
+  const departmentEl = document.getElementById("departmentFilter");
+  const department = departmentEl ? departmentEl.value : "";
 
+  // 🔥 デバッグ用（必ず一回確認）
+  console.log("department:", department);
+
+  const params = new URLSearchParams({
+    q,
+    sort,
+    department
+  });
+
+  const res = await fetch(`/api/ledger?${params}`, {
+    credentials: "include"
+  });
+
+  const rows = await res.json();
   renderLedgerTable(rows);
 }
 
@@ -223,6 +253,10 @@ function renderLedgerTable(rows) {
 // =============================
 function openModalForEdit(r) {
   modal.classList.remove("hidden");
+
+  const content = modal.querySelector(".modal-content");
+  content.style.left = (window.innerWidth / 2 - content.offsetWidth / 2) + "px";
+  content.style.top = (window.innerHeight / 2 - content.offsetHeight / 2) + "px";
 
   Object.keys(r).forEach(k => {
     const el = document.getElementById(k);
@@ -346,4 +380,73 @@ function debounce(fn, ms) {
     clearTimeout(t);
     t = setTimeout(fn, ms);
   };
+}
+
+
+
+
+// =============================
+// モーダルドラッグ（安定版）
+// =============================
+function enableModalDrag() {
+  const modal = document.querySelector("#orderModal .modal-content");
+  if (!modal) return;
+
+  const handle = modal.querySelector("h2");
+  if (!handle) return;
+
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  handle.style.cursor = "move";
+
+  handle.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+
+    const rect = modal.getBoundingClientRect();
+    const overlay = modal.parentElement;
+
+    // 🔥 ここで追加（これが質問の答え）
+    overlay.classList.add("dragging");
+
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
+    modal.style.position = "absolute";
+    modal.style.left = rect.left + "px";
+    modal.style.top = rect.top + "px";
+
+    isDragging = true;
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+
+    modal.style.left = (e.clientX - offsetX) + "px";
+    modal.style.top = (e.clientY - offsetY) + "px";
+  });
+
+  document.addEventListener("mouseup", () => {
+    if (!isDragging) return;
+
+    const overlay = modal.parentElement;
+
+    // 🔥 ここで戻す（これも重要）
+    overlay.classList.remove("dragging");
+
+    isDragging = false;
+  });
+
+
+  document.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+
+    modal.style.left = (e.clientX - offsetX) + "px";
+    modal.style.top = (e.clientY - offsetY) + "px";
+  });
+
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
 }

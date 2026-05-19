@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="header">
+  <h1>Admin Dashboard</h1>
+  <p>管理ダッシュボード</p>
+</header>
+
+<main class="container">
+
+  <div class="card-grid">
+
+    <a class="card" href="/admin-app/companies.html">
+      <h2>会社管理</h2>
+      <p>会社の追加 / 編集 / 削除</p>
+    </a>
+
+    <a class="card" href="/admin-app/users.html">
+      <h2>ユーザー管理</h2>
+      <p>全会社ユーザー管理</p>
+    </a>
+
+    <a class="card" href="/admin-app/fiscal.html">
+      <h2>年度管理</h2>
+      <p>年度切替 / 年度締め</p>
+    </a>
+
+  </div>
+
+</main>
+
+<footer class="footer">
+  SaaS Super Admin System
+</footer>
+
+<!-- dashboard.jsを画面専用で読み込む -->
+<script type="module" src="/admin-app/js/dashboard.js"></script>
+
+</body>
+</html>

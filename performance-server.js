@@ -5,7 +5,10 @@ import express from "express";
 import performanceSheetsRouter from "./routes/performance_sheets.js";
 import costsSheetsRouter from "./routes/costs_sheets.js";
 import constructionRoutes from "./routes/construction.js";
-import pool, { getCurrentFiscalYear } from "./models/db.js";
+import pool from "./models/db.js";
+import { getCurrentFiscalYear } from "./models/fiscal.js";
+
+
 
 export default async function performanceServer(app) {
   app.use(express.json());

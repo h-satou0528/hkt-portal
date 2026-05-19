@@ -1,0 +1,236 @@
+/* =========================
+   index.htmlのcss
+========================= */
+
+/* =========================
+   全体
+========================= */
+body {
+  margin: 0;
+  font-family: 'Noto Sans JP', sans-serif;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  color: #fff;
+}
+
+
+
+/* =========================
+   メイン
+========================= */
+.container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+/* =========================
+   カード
+========================= */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 25px;
+  text-decoration: none;
+  color: white;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.card h2 {
+  margin: 0 0 10px;
+    color: #000;
+}
+
+.card p {
+  margin: 0;
+  color: #000;
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(255,255,255,0.2);
+}
+
+/* =========================
+   フッター
+========================= */
+.footer {
+  text-align: center;
+  padding: 15px;
+  margin-top: 50px;
+  background: rgba(0,0,0,0.3);
+  font-size: 14px;
+  color: white;
+}
+
+
+
+
+
+
+/* =========================
+   usersのcss
+========================= */
+
+
+body {
+  font-family: "Noto Sans JP", sans-serif;
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.form {
+  margin-bottom: 20px;
+}
+
+input, select {
+  padding: 8px;
+  margin-right: 10px;
+}
+
+button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+th {
+  background: #333;
+  color: white;
+}
+
+#userTable {
+  color: #333;
+}
+
+#userTable td {
+  color: #333;
+}
+
+#userTable th {
+  background: #333;
+  color: #fff;
+}
+
+
+
+
+
+
+/* =========================
+   fiscalのcss
+========================= */
+/* =========================
+   フォーム系
+========================= */
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 10px;
+  width: 200px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+hr {
+  margin: 25px 0;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+h3 {
+  margin-bottom: 20px;
+  color: #000;
+}
+
+select {
+  padding: 8px;
+  font-size: 16px;
+  margin-right: 10px;
+  border-radius: 6px;
+}
+
+/* =========================
+   会社名
+========================= */
+.company-name {
+  text-align: center;
+  font-size: 70px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #000080;
+}
+
+.header {
+  padding-top: 10px;
+padding-bottom: 0px;
+padding-left: 20px;
+padding-right: 20px;
+
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+/* 横並びにする部分 */
+.title-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* div と h1 の間隔 */
+}
+
+.company-name {
+  font-size: 70px;
+  font-weight: bold;
+  color: #000080;
+  margin: 0;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 50px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.header p {
+  margin-top: 10px;
+  font-size: 50px;
+  color: #cbd5f5;
+}

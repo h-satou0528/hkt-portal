@@ -60,6 +60,10 @@ label { display: block; margin-bottom: 0.5em; }
   background-color: white;
   border: 1px solid gray;
   padding: 1em;
+
+  /* 👇 ここ追加 */
+  width: 400px;        /* 好きな幅に調整OK */
+  max-width: 90%;      /* 画面はみ出し防止 */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -412,3 +416,102 @@ h1 {
     position: relative;
   }
    */
+
+
+   /* モーダルのボタンの位置を均等にする */
+ .modal-buttons {
+  display: flex;
+  justify-content: space-between; /* 均等配置 */
+  gap: 10px;                      /* ボタン間の余白 */
+  margin-top: 1em;
+}
+
+.modal-buttons button {
+  flex: 1;              /* 全ボタンを同じ幅にする */
+}  
+
+/* 編集用モーダルのボタンの色指定 */
+/* ▼ 全ボタン共通のスタイル */
+.modal-buttons button, #branchModal button, #registerModal button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  color: white;
+}
+
+/* hover：少し浮く */
+.modal-buttons button:hover,
+ #branchModal button:hover,
+ #registerModal button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.25);
+}
+
+/* active：押したときに沈む */
+.modal-buttons button:active, #branchModal button:active, #registerModal button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* ▼ 個別の色設定（前回の色調） */
+.btn-save {
+  background-color: #4CAF50;
+}
+
+.btn-close {
+  background-color: #2196F3;
+}
+
+.btn-missing {
+  background-color: #FF9800;
+}
+
+.btn-delete {
+  background-color: #F44336;
+}
+
+.branch-save-btn {
+  background-color: #4CAF50;
+}
+
+.branch-close-btn {
+  background-color: #2196F3;
+}
+
+
+/* 登録モーダルのボタンの色指定 */
+.saveEntryBtn {
+  background-color: #4CAF50;
+}
+
+.outModalBtn {
+  background-color: #2196F3;
+}
+
+
+.button-row {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* branchModal のボタン配置を中央寄せ＋間隔 */
+#branchModal .modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1em; /* 入力欄との間隔 */
+}
+
+/* ボタンだけを中央に並べる */
+#branchModal .button-row-branch {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* ボタン同士の間隔 */
+  margin-top: 1em;
+}
+
+

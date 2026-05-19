@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>注文票</title>
+  <title>発注材料一覧</title>
   <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'"> -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -17,6 +17,7 @@
 
 <div class="page-container">
   <header>
+    <button id="bulkCloneBtn">✅のクローン編集</button>
     <button id="openFormBtn">発注材料入力フォーム</button>
 
     <label>並び替え：
@@ -29,7 +30,7 @@
     </label>
 
     <label>検索：
-      <input id="searchInput" placeholder="部門/工事番号/発注先/発注者/品名/形式 で検索">
+      <input id="searchInput" placeholder="部門/工事/発注先/発注者/品名/形式">
     </label>
 
     <div class="header-box summary-box">
@@ -56,6 +57,23 @@
 </div>
 
 
+<!-- <h3>CSV取込</h3> -->
+
+<div class="header-box csv-import-box">CSV登録
+
+  <input type="file" id="csvFileInput" accept=".csv">
+
+  <button id="uploadCsvBtn">
+    CSVアップロード
+  </button>
+
+  <div id="csvImportResult"></div>
+
+</div>
+<div id="csvSpinner" style="display:none;">
+  CSVアップロード中...
+</div>
+
   </header>
 
   <main>
@@ -63,6 +81,8 @@
     <table id="orderTable">
       <thead>
         <tr>
+          <th>✅</th>
+          <!-- <th><input type="checkbox" id="checkAll"></th> --><!-- 🔥 追加 -->
           <th>部門</th><th>工事番号</th><th>区分</th><th>CD</th><th>発注先</th><th>発注者</th><th>発注日</th><th>メーカー</th><th>品　　名</th><th>型　　式</th><th>数量</th><th>単位</th><th>単価</th><th>金額(税抜)</th><th>金額(税込)</th><th>定価(単価)</th><th>納品日</th><th>M</th><th>C</th><th>請求書</th><th>備考</th>
         </tr>
       </thead>
@@ -97,7 +117,7 @@
       <label>区　分　　 <input name="category" id="category"></label>
       <label>ＣＤ　　　
         <select name="cd" id="cd">
-          <option value=""></option>
+          <option value="">--選択--</option>
           <option value="A">A</option>
           <option value="B">B</option>
           <option value="C">C</option>
@@ -130,9 +150,9 @@
           <select id="C_select">
           <option value="">--選択--</option>
           <option>本社C</option>
-          <option>A</option>
-          <option>B</option>
-          <option>C</option>
+          <option>内川C</option>
+          <option>函館C</option>
+
         </select>
        <!-- <input id="C_text" placeholder="自由入力可"> --->
       </label>
@@ -168,6 +188,17 @@
       <button type="button" id="cloneSaveBtn" class="hidden">新規として登録</button>
 </div>
    <!-- </form> -->
+  </div>
+</div>
+
+<div id="bulkModal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h2>複数クローン編集</h2>
+
+    <div id="bulkContainer"></div>
+
+    <button id="bulkSaveBtn">このクローンを新規登録</button>
+    <button id="bulkCloseBtn">閉じる</button>
   </div>
 </div>
 

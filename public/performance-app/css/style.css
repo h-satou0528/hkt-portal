@@ -53,6 +53,18 @@ P {
   padding-right: 10px;
 }
 
+/* body部上段のエリア*/
+#searchInput {
+  width: 150px;
+  padding: 5px;
+  font-size: 14px;
+  background-color: #e0f3ff;
+  border: 1px solid #999; /* ← 枠線を追加 */
+  border-radius: 4px;     /* ← 角を少し丸くする（任意） */
+}
+
+
+
 
 /*工事命令書の工事完了で工事番号の背景を緑色にする*/
 /* .completed td:first-child,  /* 最初のセルに適用 */
@@ -376,13 +388,20 @@ button {
     background-color: #6fe99e; /* お好みの色に変更OK */
   }
 
-
+th.area-header0 {
+    background-color: #ffffd6;
+  }
   th.area-header {
     background-color: #e0f3ff;
   }
   th.area-header2 {
     background-color: #fce5cd;
   }
+  th.area-header3 {
+    background-color: #ffe5ff;
+  }
+
+
 
 /*工事命令書の下のボタン*/
   .ui-dialog-buttonset button.jisseki-button {
@@ -446,13 +465,6 @@ button {
 }
 
 
-
-
-/*横にスクロール処理*/
-#orderListWrapper {
-  overflow-x: auto;
-  max-width: 100%;      /* 横スクロールさせる */
-}
 
 /*行と列の表示崩れを防止処理*/
 #orderList th,
@@ -839,4 +851,128 @@ select#department {
     -moz-appearance: none !important;
     background: transparent !important;
   }
+}
+
+
+.reflect-label {
+  color: red;
+   margin-left: 30px;   /* ← 左に余白を追加 */
+
+}
+
+
+/*リストの１段目と２段目ヘッダーを固定してリストをスクロール */
+/* --------------------
+   スクロール枠
+-------------------- */
+#orderListWrapper {
+  max-height: 570px;   /* リストの縦幅 */
+  /*overflow-y: auto;*/   /* 縦スクロール */
+   /*overflow-x: auto;*/   /* 横スクロール */
+  /*max-width: 100%;      /* 横スクロールさせる */
+  /*border: 1px solid #030303;*/    /* リストの外枠線 */
+  height: calc(100vh - 150px); /* ← ヘッダー分引く（調整OK） */
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+/* --------------------
+   テーブル
+-------------------- */
+#orderList {
+  border-collapse: separate;   /* ← ★ここ変更 */
+
+  border-spacing: 0;           /* ← ★これ必須 */
+}
+
+
+/* --------------------
+   共通ヘッダー
+-------------------- */
+#orderList thead th {
+  position: sticky;
+  top: 0;
+  /*background: #fff;*/
+  border: 1px solid #999;
+  /*padding: 4px 15px;*/              /* ← ★高さはpaddingで調整 */
+  /*border: 1px solid black;*/        /* ← ★横線もここで解決 */
+  /*white-space: nowrap;*/
+  z-index: 10;
+  background-clip: padding-box;  /* ← ★隙間対策（地味に効く） */
+   box-sizing: border-box;
+}
+
+/* --------------------
+   1段目
+-------------------- */
+#orderList thead tr:nth-child(1) th {
+  top: 0;
+  z-index: 28;
+}
+
+/* --------------------
+   2段目
+-------------------- */
+#orderList thead tr:nth-child(2) th {
+  top: 26px;   /* ← ★これが最重要（高さ自動連動） */
+  z-index: 28;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;  /* ← これが重要 */
+}
+
+
+/* ここから読み込み中のエリア */
+/* --------------------
+   読み込み中のスピナーを入れる
+-------------------- */
+.loading-overlay {
+  position: fixed;   /* ← 画面全体に被せる */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 9998;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* スピナー */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 6px solid #ccc;
+  border-top: 6px solid #4a90e2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* テキスト */
+.loading-text {
+  margin-top: 15px;
+  font-size: 16px;
+  color: #333;
+}
+
+/* アニメーション */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 非表示 */
+.hidden {
+  display: none !important;
+}
+
+
+
+#orderList {
+  background-color: #fff;
 }

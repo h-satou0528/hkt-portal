@@ -1,4 +1,5 @@
-// models/db.js（Azure PostgreSQL 対応）
+// models/db.js（ESM・SaaS安全版）
+
 import dotenv from "dotenv";
 import pg from "pg";
 
@@ -9,24 +10,30 @@ const { Pool } = pg;
 // --------------------
 // 接続設定
 // --------------------
-const config = process.env.DATABASE_URL
-  ? {
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-    }
-  : {
-      host: process.env.PGHOST || "localhost",       // Azure PostgreSQL のホスト名
-      user: process.env.PGUSER || "postgres",       // ユーザー名
-      password: process.env.PGPASSWORD || "pass",   // パスワード
-      database: process.env.PGDATABASE || "kouban_db", // DB名
-      port: Number(process.env.PGPORT) || 5432,     // ポート
-      ssl: process.env.PGHOST ? { rejectUnauthorized: false } : false, // Azure 用 SSL
-    };
+const config = {
+  host: process.env.PGHOST,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE,
+  port: process.env.PGPORT || 5432,
+  ssl: { rejectUnauthorized: false },
+
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000
+};
 
 // --------------------
 // Pool 作成
 // --------------------
 const pool = new Pool(config);
+
+// --------------------
+// 接続エラー監視（超重要）
+// --------------------
+pool.on("error", (err) => {
+  console.error("🚨 PostgreSQL Pool Error", err);
+});
 
 // --------------------
 // 起動時 接続チェック
@@ -38,15 +45,7 @@ try {
   console.error("🔴 PostgreSQL 接続エラー:", err);
 }
 
-// --------------------
-// 現在年度取得（settings 1行固定）
-// --------------------
-export async function getCurrentFiscalYear() {
-  const result = await pool.query(
-    "SELECT current_fiscal_year FROM settings LIMIT 1"
-  );
-  return result.rows[0].current_fiscal_year;
-}
+
 
 // --------------------
 // export

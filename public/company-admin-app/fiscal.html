@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>年度管理</title>
+  <link rel="stylesheet" href="/company-admin-app/css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div id="companyName" class="company-name"></div>
+  <h1>年度管理</h1>
+  <p>Fiscal Year Management</p>
+</header>
+
+<main class="container">
+
+  <div class="card">
+
+    <h2>現在の年度</h2>
+    <p id="currentYear">読み込み中...</p>
+
+    <hr>
+
+    <h3>年度切替</h3>
+
+<select id="yearSelect"></select>
+<button onclick="updateYear()">年度切替</button>
+
+    <hr>
+
+    <h3>年度締め</h3>
+    <p id="status">状態: 読み込み中...</p>
+    <button onclick="toggleClose()">締め / 開放</button>
+
+  </div><br>
+
+  <div class="card-grid">
+
+    <a class="card" href="/company-admin-app/index.html">
+      <h2>会社管理ダッシュボードに戻る</h2>
+      <p></p>
+    </a>
+
+    <a class="card" href="/company-admin-app/users.html">
+      <h2>👤 ユーザー管理</h2>
+      <p>ユーザーの追加・編集・削除</p>
+    </a>
+
+  </div>
+
+</main>
+
+<!-- <footer class="footer">
+  Company Admin System
+</footer> -->
+
+<script type="module" src="/company-admin-app/js/fiscal.js"></script>
+
+</body>
+</html>

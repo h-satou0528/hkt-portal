@@ -6,10 +6,10 @@ import { getCurrentFiscalYear, isFiscalYearClosed } from "../models/fiscal.js";
 const router = express.Router();
 
 // 🔹 全件取得・検索・ソート
-// 🔹 全件取得・検索・ソート
 router.get("/", async (req, res) => {
   const q = req.query.q || "";
   const sort = req.query.sort || "created_desc";
+  const department = req.query.department || ""; // ← 追加
   const limit = parseInt(req.query.limit, 10) || 100;
 
   let orderBy = "created_at DESC";
@@ -18,24 +18,30 @@ router.get("/", async (req, res) => {
   if (sort === "kouji_desc") orderBy = "kouji_number DESC";
 
   try {
-    // ⭐ 現在年度取得
-    const fiscalYear = await getCurrentFiscalYear();
+    const fiscalYear = req.fiscalYear;
 
     const sql = `
       SELECT *
       FROM ledger
       WHERE fiscal_year = $1
+
+      -- 🔥 部門フィルタ追加
+      AND ($2 = '' OR department = $2)
+
+      -- 🔥 検索
       AND (
-        kouji_number ILIKE $2
-        OR client ILIKE $2
-        OR construction ILIKE $2
+        kouji_number ILIKE $3
+        OR client ILIKE $3
+        OR construction ILIKE $3
       )
+
       ORDER BY ${orderBy}
-      LIMIT $3
+      LIMIT $4
     `;
 
     const { rows } = await pool.query(sql, [
       fiscalYear,
+      department,
       `%${q}%`,
       limit
     ]);
@@ -47,7 +53,6 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "データ取得エラー" });
   }
 });
-
 
 
 // 🔹 新規登録
@@ -227,7 +232,7 @@ router.delete("/:id", async (req, res) => {
     if (!rows.length) return res.status(404).json({ error: "データが存在しません" });
 
     const year =
-  Number(data.kouji_number?.slice(0, 4)) ||
+  Number(rows[0].kouji_number?.slice(0, 4)) ||
   await getCurrentFiscalYear();
     if (await isFiscalYearClosed(year)) {
       return res.status(403).json({ error: "締め年度のデータは削除できません" });

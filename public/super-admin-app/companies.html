@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会社管理</title>
+<link rel="stylesheet" href="/super-admin-app/css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <!-- <h1>会社管理</h1> -->
+  <p>SaaS 会社管理</p>
+  <!-- ⭐ 追加 -->
+  <div class="company-switch">
+    <!--🏢 操作対象会社：
+    <select id="companySelect"></select>-->
+    hkt-portalへ参加する会社の追加・削除する
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- 会社追加 / 編集フォーム -->
+  <section class="card">
+    <h2>会社追加 / 編集</h2>
+    <input id="companyName" placeholder="会社名">
+    <select id="fiscalStartMonth">
+      <option value="1">1月</option>
+      <option value="2">2月</option>
+      <option value="3">3月</option>
+      <option value="4" selected>4月</option>
+      <option value="5">5月</option>
+      <option value="6">6月</option>
+      <option value="7">7月</option>
+      <option value="8">8月</option>
+      <option value="9">9月</option>
+      <option value="10">10月</option>
+      <option value="11">11月</option>
+      <option value="12">12月</option>
+    </select>
+    <button id="addUpdateCompanyBtn">追加 / 更新</button>
+    <button id="cancelEditBtn" style="display:none;">キャンセル</button>
+  </section>
+
+  <!-- 会社一覧 -->
+  <section class="card">
+    <h2>会社一覧</h2>
+    <table id="companyTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>会社名</th>
+          <th>年度開始月</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+</main>
+
+<div class="card-grid">
+  <a class="back-link" href="/super-admin-app/index.html">
+    <h2>← ダッシュボードに戻る</h2>
+    <p>Super Admin Portal</p>
+  </a>
+</div>
+
+<footer class="footer">
+SaaS Super Admin System
+</footer>
+
+<script type="module" src="/super-admin-app/js/dashboard.js"></script> <!-- ⭐追加 -->
+<script type="module" src="/super-admin-app/js/companies.js"></script>
+</body>
+</html>

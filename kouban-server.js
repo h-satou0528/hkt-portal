@@ -3,7 +3,8 @@
 import cors from "cors";
 import bodyParser from "body-parser";
 
-import pool, { getCurrentFiscalYear } from "./models/db.js";
+import pool from "./models/db.js";
+//import { getCurrentFiscalYear } from "./models/fiscal.js";
 import { checkFiscalOpen } from "./middlewares/checkFiscalOpen.js";
 
 
@@ -28,10 +29,11 @@ export default async function koubanServer(app) {
   app.post("/next-bandai-number", async (req, res) => {
     const { bandaiStart, eraCode } = req.body;
 
-    const fiscalYear = await getCurrentFiscalYear();
+    //const fiscalYear = await getCurrentFiscalYear();
+    const fiscalYear = req.fiscalYear;
 
     try {
-      const result = await pool.query(
+      const result = await req.db.query(
         `SELECT bandai FROM entries WHERE bandai LIKE $1`,
         [`${eraCode}-%`]
       );
@@ -55,29 +57,35 @@ export default async function koubanServer(app) {
   app.post("/api/save-entry", checkFiscalOpen, async (req, res) => {
 
   try {
-     
+  
+
+    //console.log("=== save-entry DEBUG ===");
+    //console.log("companyId:", req.session.company_id);
+    //console.log("fiscalYear:", req.fiscalYear);
 
 
     const { bandai, title, person, note, order, invoice, performance } = req.body;
 
-    const fiscalYear = await getCurrentFiscalYear(); // ★追加
-    
+    //const fiscalYear = await getCurrentFiscalYear(); // ★追加
+    const fiscalYear = req.fiscalYear;
+    const companyId = req.session.company_id; // 🔥 追加
 
-    await pool.query(
-      `INSERT INTO entries
-       (bandai, title, person, note, "order", invoice, performance, fiscal_year)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [
-        bandai,
-        title,
-        person,
-        note,
-        order,
-        invoice,
-        performance,
-        fiscalYear, // ★必須
-      ]
-    );
+await req.db.query(
+  `INSERT INTO entries
+   (bandai, title, person, note, "order", invoice, performance, fiscal_year, company_id)
+   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+  [
+    bandai,
+    title,
+    person,
+    note,
+    order,
+    invoice,
+    performance,
+    fiscalYear,
+    companyId // 🔥 これ追加
+  ]
+);
 
     res.json({ success: true });
   } catch (err) {
@@ -92,7 +100,7 @@ export default async function koubanServer(app) {
 app.post("/save-sub-entry", async (req, res) => {
   try {
     // 🔒 年度締めチェック
-    const settings = await pool.query(
+    const settings = await req.db.query(
       "SELECT fiscal_year_closed FROM settings WHERE id = 1"
     );
 
@@ -113,10 +121,11 @@ app.post("/save-sub-entry", async (req, res) => {
     } = req.body;
 
     // 📅 現在年度取得
-    const fiscalYear = await getCurrentFiscalYear();
+    //const fiscalYear = await getCurrentFiscalYear();
+    const fiscalYear = req.fiscalYear;
 
     // 既存の枝番号取得（元ロジックそのまま）
-    const result = await pool.query(
+    const result = await req.db.query(
       `SELECT bandai FROM entries WHERE bandai LIKE $1`,
       [`${baseBandai}-%`]
     );
@@ -130,27 +139,32 @@ app.post("/save-sub-entry", async (req, res) => {
       }
     }
 
+    
+
     const nextBranch = maxBranch + 1;
     const newBandai = `${baseBandai}-${nextBranch}`;
 
-    await pool.query(
-      `
-      INSERT INTO entries
-        (bandai, title, person, note, "order", invoice, performance, fiscal_year)
-      VALUES
-        ($1, $2, $3, $4, $5, $6, $7, $8)
-      `,
-      [
-        newBandai,
-        title,
-        person,
-        note,
-        order ?? "",
-        invoice ?? "",
-        performance ?? "",
-        fiscalYear, // ★追加
-      ]
-    );
+    const companyId = req.session.company_id; // 🔥 追加
+
+await req.db.query(
+  `
+  INSERT INTO entries
+    (bandai, title, person, note, "order", invoice, performance, fiscal_year, company_id)
+  VALUES
+    ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+  `,
+  [
+    newBandai,
+    title,
+    person,
+    note,
+    order ?? "",
+    invoice ?? "",
+    performance ?? "",
+    fiscalYear,
+    companyId // 🔥 これ追加
+  ]
+);
 
     res.json({ success: true, bandai: newBandai });
   } catch (err) {
@@ -163,25 +177,21 @@ app.post("/save-sub-entry", async (req, res) => {
   // --------------------
   // 一覧取得
   // --------------------
-  app.get("/api/entries", async (_req, res) => {
-  try {
-    const fiscalYear = await getCurrentFiscalYear();
+  app.get("/api/entries", async (req, res) => {
+  const companyId = req.session.company_id; // 🔥
+  const fiscalYear = req.fiscalYear;
 
-    const result = await pool.query(
-      `SELECT *
-       FROM entries
-       WHERE fiscal_year = $1
-       ORDER BY bandai`,
-      [fiscalYear]
-    );
+  const result = await req.db.query(
+    `SELECT *
+     FROM entries
+     WHERE company_id = $1
+       AND fiscal_year = $2
+     ORDER BY bandai`,
+    [companyId, fiscalYear]
+  );
 
-    res.json(result.rows);
-  } catch (err) {
-    console.error("一覧取得エラー:", err);
-    res.status(500).json({ error: err.message });
-  }
+  res.json(result.rows);
 });
-
 
   // --------------------
   // 検索
@@ -190,7 +200,7 @@ app.post("/save-sub-entry", async (req, res) => {
     const keyword = req.query.keyword || "";
 
     try {
-      const result = await pool.query(
+      const result = await req.db.query(
         `SELECT bandai, title, person, note, "order", invoice, performance
          FROM entries
          WHERE bandai ILIKE $1 OR title ILIKE $1
@@ -221,9 +231,10 @@ app.post("/save-sub-entry", async (req, res) => {
   } = req.body;
 
   try {
-    const fiscalYear = await getCurrentFiscalYear(); // ★追加
+    //const fiscalYear = await getCurrentFiscalYear(); // ★追加
+    const fiscalYear = req.fiscalYear;
 
-    await pool.query(
+    await req.db.query(
       `UPDATE entries SET
         bandai = $1,
         title = $2,
@@ -259,9 +270,10 @@ app.post("/save-sub-entry", async (req, res) => {
   // 欠番フラグ
   // --------------------
   app.put("/api/update-entry", checkFiscalOpen, async (req, res) => {
-     const fiscalYear = await getCurrentFiscalYear();
+     //const fiscalYear = await getCurrentFiscalYear();
+     const fiscalYear = req.fiscalYear;
     try {
-      await pool.query(
+      await req.db.query(
         `UPDATE entries SET missing = 1 WHERE bandai = $1`,
         [req.body.bandai]
       );
@@ -275,9 +287,9 @@ app.post("/save-sub-entry", async (req, res) => {
   // --------------------
   // 全件取得
   // --------------------
-  app.get("/load-entries", async (_req, res) => {
+  app.get("/load-entries", async (req, res) => {
     try {
-      const result = await pool.query(
+      const result = await req.db.query(
         "SELECT * FROM entries ORDER BY bandai ASC"
       );
       res.json(result.rows);
@@ -288,28 +300,75 @@ app.post("/save-sub-entry", async (req, res) => {
   });
 
 
-  // 欠番一覧取得（旧互換 API）
+  // 番台リスト表示（旧互換 API）
 app.get("/getBandaiList", async (req, res) => {
-  const { prefix, from, to } = req.query;
+  const from = parseInt(req.query.from, 10);
+  const to = parseInt(req.query.to, 10);
+
+  const companyId = req.session.company_id;
+  const fiscalYear = req.fiscalYear;
 
   try {
-    const result = await pool.query(
+
+    console.log("getBandaiList:", {
+      from,
+      to,
+      companyId,
+      fiscalYear
+    });
+
+    const result = await req.db.query(
       `
       SELECT bandai, title, person, note, "order", invoice, performance
       FROM entries
-      WHERE bandai LIKE $1
-        AND split_part(bandai, '-', 2)::int BETWEEN $2 AND $3
+      WHERE company_id = $3
+        AND fiscal_year = $4
+        AND NULLIF(split_part(bandai, '-', 2), '')::int BETWEEN $1 AND $2
       ORDER BY bandai
       `,
-      [`${prefix}%`, from, to]
+      [from, to, companyId, fiscalYear]
     );
 
-    // ★ここが重要
     res.json(result.rows);
+
   } catch (err) {
-    console.error("getBandaiList error:", err);
-    res.status(500).json({ error: "DB error" });
+
+    console.error("🔥 getBandaiList error:", err);
+
+    res.status(500).json({
+      error: "DB error",
+      detail: err.message
+    });
   }
 });
 
+// --------------------
+  // 削除（ここに追加🔥）
+  // --------------------
+  app.post("/api/orderdata/delete-entry", checkFiscalOpen, async (req, res) => {
+
+    const { bandai } = req.body;
+
+    //console.log("🔥 delete req.body:", req.body);
+
+    if (!bandai) {
+      return res.status(400).json({ error: "bandai required" });
+    }
+
+    try {
+      await req.db.query(
+        `DELETE FROM entries WHERE bandai = $1`,
+        [bandai]
+      );
+
+      res.json({ success: true });
+
+    } catch (err) {
+      console.error("削除エラー:", err);
+      res.status(500).json({ error: err.message });
+    }
+
+  });
+
 }
+
